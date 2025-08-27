@@ -1,0 +1,76 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+
+      - name: Check dist folder for symlinks or large files
+        run: |
+          echo "🔍 Checking for symlinks in ./dist..."
+          if find ./dist -type l | grep .; then
+            echo "❌ Symlinks found in dist folder. Upload aborted."
+            exit 1
+          fi
+
+          echo "🔍 Checking for hard links in ./dist..."
+          if find ./dist -type f -exec stat --format '%n %h' {} + | awk '$2 > 1 {print $1}' | grep .; then
+            echo "❌ Hard links found in dist folder. Upload aborted."
+            exit 1
+          fi
+
+          echo "📦 Calculating folder size..."
+          FOLDER_SIZE_MB=$(du -sm ./dist | cut -f1)
+          echo "Total size: ${FOLDER_SIZE_MB}MB"
+
+          if [ "$FOLDER_SIZE_MB" -gt 9500 ]; then
+            echo "❌ Dist folder exceeds 9.5GB. Upload aborted."
+            exit 1
+          fi
+
+          echo "✅ All checks passed."
+
+      - name: Upload production-ready build files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

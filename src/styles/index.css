@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* Tailwind v4 tokens (used by from-accent/to-accent2, etc.) */
+@theme {
+  --color-accent: #0fbab6;
+  --color-accent2: #74f1d1;
+  --color-bg: 6 26 31; /* rgb */
+  --color-fg: 232 245 243;
+  --color-muted: 127 181 181;
+  --color-line: 17 69 79;
+}
+
+:root {
+  --bg: #061a1f;
+  --fg: #e8f5f3;
+  --muted: #7fb5b5;
+  --accent: #0fbab6;
+  --accent2: #74f1d1;
+  --line: #11454f;
+  --surface: rgba(7, 34, 39, 0.78);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(
+      620px 420px at -5% 5%,
+      rgba(15, 186, 182, 0.28),
+      transparent 65%
+    ),
+    radial-gradient(
+      560px 380px at 110% 20%,
+      rgba(7, 94, 110, 0.45),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #021014 0%, #062226 45%, #0b3035 100%);
+  color: var(--fg);
+  font-family: "Inter", "Space Grotesk", ui-sans-serif, system-ui, -apple-system,
+    Segoe UI, Roboto, Helvetica, Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle global font size bump for better readability */
+html {
+  font-size: 17px;
+}
+@media (min-width: 1280px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+.surface {
+  background: linear-gradient(
+    160deg,
+    rgba(15, 186, 182, 0.08),
+    rgba(5, 50, 56, 0.6)
+  );
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(17, 69, 79, 0.65);
+  border-radius: 18px;
+  box-shadow: 0 22px 36px rgba(2, 20, 24, 0.45);
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  border: 2px dashed rgba(17, 69, 79, 0.6);
+  border-radius: 14px;
+  color: rgba(143, 211, 207, 0.9);
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(18, 78, 88, 0.32) 0 15px,
+    rgba(8, 40, 46, 0.5) 15px 30px
+  );
+}
+
+/* Tailwind v4 replacement for custom animation utilities */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes scaleXIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
+}
+.animate-scale-x-in {
+  animation: scaleXIn 0.6s ease-out both;
+}
+
+/* Shadow helper used in cards */
+.shadow-glow {
+  box-shadow: 0 0 34px rgba(15, 186, 182, 0.32);
+}
+
+/* Focus accessibility */
+:focus-visible {
+  outline: 3px solid rgba(15, 186, 182, 0.75);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
