@@ -21,7 +21,11 @@ export const trafficManagerSlides: SlideMeta[] = [
   { id: "qa", transition: "fade" },
 ];
 
-type FadeInProps = { delay?: number; className?: string; children?: React.ReactNode };
+type FadeInProps = {
+  delay?: number;
+  className?: string;
+  children?: React.ReactNode;
+};
 const FadeIn: React.FC<FadeInProps> = ({ delay = 0, className, children }) => (
   <motion.div
     initial={{ opacity: 0, y: 28 }}
@@ -48,10 +52,21 @@ function TitleSlide() {
         delay={0.45}
         className="text-2xl font-light text-[var(--muted)] max-w-3xl mt-6"
       >
-        Azure ML powered Intelligent Traffic & Computer Vision Platform – infra, ML workspace, experimentation & secure delivery.
+        Azure ML powered Intelligent Traffic & Computer Vision Platform – infra,
+        ML workspace, experimentation & secure delivery.
       </FadeIn>
-      <FadeIn delay={0.75} className="flex gap-3 flex-wrap justify-center mt-10">
-        {["Azure ML", "Terraform", "Private Networking", "Experiments", "Compute Clusters", "Dev Container"].map((t, i) => (
+      <FadeIn
+        delay={0.75}
+        className="flex gap-3 flex-wrap justify-center mt-10"
+      >
+        {[
+          "Azure ML",
+          "Terraform",
+          "Private Networking",
+          "Experiments",
+          "Compute Clusters",
+          "Dev Container",
+        ].map((t, i) => (
           <span
             key={t}
             className="surface rounded-full px-4 py-2 text-sm font-semibold animate-fade-in-up"
@@ -87,7 +102,9 @@ function OverviewSlide() {
           </ul>
         </FadeIn>
         <FadeIn delay={0.35} className="surface p-6 rounded-xl">
-          <h3 className="text-xl font-semibold text-accent2 mb-3">Core Value</h3>
+          <h3 className="text-xl font-semibold text-accent2 mb-3">
+            Core Value
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Unified infra + ML project patterns</li>
             <li>• Clear separation: base ↔ ML workspace ↔ experimentation</li>
@@ -110,18 +127,34 @@ function ProjectStructureSlide() {
       </FadeIn>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <FadeIn delay={0.2} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-cyan-300 mb-3">Key Areas</h3>
+          <h3 className="text-lg font-semibold text-cyan-300 mb-3">
+            Key Areas
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
-            <li>• <strong>infra/</strong> – Terraform (base & ml_workspace)</li>
-            <li>• <strong>infra/scripts/</strong> – Backend & SP automation</li>
-            <li>• <strong>pyaml/</strong> – Azure ML Python SDK project</li>
-            <li>• <strong>.hve/plans</strong> – Implementation & change summaries</li>
-            <li>• <strong>pyaml/src/experiments</strong> – Notebooks & prototyping</li>
-            <li>• <strong>pyaml/src/workflows</strong> – Production pipelines</li>
+            <li>
+              • <strong>infra/</strong> – Terraform (base & ml_workspace)
+            </li>
+            <li>
+              • <strong>infra/scripts/</strong> – Backend & SP automation
+            </li>
+            <li>
+              • <strong>pyaml/</strong> – Azure ML Python SDK project
+            </li>
+            <li>
+              • <strong>.hve/plans</strong> – Implementation & change summaries
+            </li>
+            <li>
+              • <strong>pyaml/src/experiments</strong> – Notebooks & prototyping
+            </li>
+            <li>
+              • <strong>pyaml/src/workflows</strong> – Production pipelines
+            </li>
           </ul>
         </FadeIn>
         <FadeIn delay={0.35} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-blue-300 mb-3">Conventions</h3>
+          <h3 className="text-lg font-semibold text-blue-300 mb-3">
+            Conventions
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• ADR templates drive architectural decisions</li>
             <li>• Cookiecutter for experiment scaffolding</li>
@@ -182,7 +215,9 @@ function InfrastructureArchitectureSlide() {
             delay={0.2 + i * 0.15}
             className={`surface p-6 rounded-xl border-l-4 border-${c.color}-500`}
           >
-            <h3 className={`text-lg font-semibold text-${c.color}-300 mb-3`}>{c.title}</h3>
+            <h3 className={`text-lg font-semibold text-${c.color}-300 mb-3`}>
+              {c.title}
+            </h3>
             <ul className="text-xs text-[var(--muted)] space-y-1">
               {c.pts.map((p) => (
                 <li key={p}>• {p}</li>
@@ -195,7 +230,8 @@ function InfrastructureArchitectureSlide() {
         delay={0.75}
         className="mt-8 surface p-4 rounded-xl text-center text-sm text-[var(--muted)]"
       >
-        Flow: init-backend → base apply → ml_workspace apply → ML experimentation & pipelines.
+        Flow: init-backend → base apply → ml_workspace apply → ML
+        experimentation & pipelines.
       </FadeIn>
     </div>
   );
@@ -206,17 +242,32 @@ function EnvironmentsSlide() {
     {
       name: "Development",
       color: "emerald",
-      pts: ["Smaller VM sizes", "Faster iteration", "Relaxed controls", "State: dev tfstate"],
+      pts: [
+        "Smaller VM sizes",
+        "Faster iteration",
+        "Relaxed controls",
+        "State: dev tfstate",
+      ],
     },
     {
       name: "Staging",
       color: "teal",
-      pts: ["Prod-like config", "Security parity", "Pre-release validation", "State: stage tfstate"],
+      pts: [
+        "Prod-like config",
+        "Security parity",
+        "Pre-release validation",
+        "State: stage tfstate",
+      ],
     },
     {
       name: "Production",
       color: "lime",
-      pts: ["Max security", "Scaling clusters", "Cost governance", "State: prod tfstate"],
+      pts: [
+        "Max security",
+        "Scaling clusters",
+        "Cost governance",
+        "State: prod tfstate",
+      ],
     },
   ];
   return (
@@ -233,7 +284,9 @@ function EnvironmentsSlide() {
             delay={0.2 + i * 0.15}
             className={`surface p-6 rounded-xl border-l-4 border-${e.color}-500`}
           >
-            <h3 className={`text-lg font-semibold text-${e.color}-300 mb-3`}>{e.name}</h3>
+            <h3 className={`text-lg font-semibold text-${e.color}-300 mb-3`}>
+              {e.name}
+            </h3>
             <ul className="text-xs text-[var(--muted)] space-y-1">
               {e.pts.map((p) => (
                 <li key={p}>• {p}</li>
@@ -256,7 +309,9 @@ function MLWorkspaceSlide() {
       </FadeIn>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <FadeIn delay={0.2} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-yellow-300 mb-3">Configuration</h3>
+          <h3 className="text-lg font-semibold text-yellow-300 mb-3">
+            Configuration
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Variables for environment, workspace type, clusters</li>
             <li>• Outputs expose IDs for pipelines & tooling</li>
@@ -265,7 +320,9 @@ function MLWorkspaceSlide() {
           </ul>
         </FadeIn>
         <FadeIn delay={0.35} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-orange-300 mb-3">Lifecycle</h3>
+          <h3 className="text-lg font-semibold text-orange-300 mb-3">
+            Lifecycle
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Base must exist before workspace apply</li>
             <li>• Remote state ensures dependency ordering</li>
@@ -288,12 +345,22 @@ function ComputeClustersSlide() {
     {
       title: "Profiles",
       color: "purple",
-      pts: ["Training (CPU + GPU)", "Testing (LowPriority)", "Serving (scales quicker)", "PR (small ephemeral)"],
+      pts: [
+        "Training (CPU + GPU)",
+        "Testing (LowPriority)",
+        "Serving (scales quicker)",
+        "PR (small ephemeral)",
+      ],
     },
     {
       title: "Best Practices",
       color: "pink",
-      pts: ["Scale to zero when idle", "GPU sizing validated", "Spot for non-critical", "SSH disabled by default"],
+      pts: [
+        "Scale to zero when idle",
+        "GPU sizing validated",
+        "Spot for non-critical",
+        "SSH disabled by default",
+      ],
     },
   ];
   return (
@@ -310,7 +377,9 @@ function ComputeClustersSlide() {
             delay={0.2 + i * 0.15}
             className={`surface p-6 rounded-xl border-l-4 border-${g.color}-500`}
           >
-            <h3 className={`text-lg font-semibold text-${g.color}-300 mb-3`}>{g.title}</h3>
+            <h3 className={`text-lg font-semibold text-${g.color}-300 mb-3`}>
+              {g.title}
+            </h3>
             <ul className="text-xs text-[var(--muted)] space-y-1">
               {g.pts.map((p) => (
                 <li key={p}>• {p}</li>
@@ -319,7 +388,10 @@ function ComputeClustersSlide() {
           </FadeIn>
         ))}
       </div>
-      <FadeIn delay={0.75} className="mt-8 surface p-4 rounded-xl text-center text-sm text-[var(--muted)]">
+      <FadeIn
+        delay={0.75}
+        className="mt-8 surface p-4 rounded-xl text-center text-sm text-[var(--muted)]"
+      >
         Multi-cluster evolution replaces legacy single-cluster variable set.
       </FadeIn>
     </div>
@@ -331,17 +403,32 @@ function ExperimentsVsWorkflowsSlide() {
     {
       title: "Experiments",
       color: "emerald",
-      pts: ["Prototype & research", "Notebook + lightweight code", "Template scaffolding", "Documented hypotheses"],
+      pts: [
+        "Prototype & research",
+        "Notebook + lightweight code",
+        "Template scaffolding",
+        "Documented hypotheses",
+      ],
     },
     {
       title: "Workflows",
       color: "teal",
-      pts: ["Promoted artifacts", "Production pipelines", "Service wrappers reused", "Test & lint enforced"],
+      pts: [
+        "Promoted artifacts",
+        "Production pipelines",
+        "Service wrappers reused",
+        "Test & lint enforced",
+      ],
     },
     {
       title: "Promotion Path",
       color: "cyan",
-      pts: ["Experiment validated", "Create PR", "Refactor to workflow", "Add ADR if architectural"],
+      pts: [
+        "Experiment validated",
+        "Create PR",
+        "Refactor to workflow",
+        "Add ADR if architectural",
+      ],
     },
   ];
   return (
@@ -358,7 +445,9 @@ function ExperimentsVsWorkflowsSlide() {
             delay={0.2 + i * 0.15}
             className={`surface p-6 rounded-xl border-l-4 border-${c.color}-500`}
           >
-            <h3 className={`text-lg font-semibold text-${c.color}-300 mb-3`}>{c.title}</h3>
+            <h3 className={`text-lg font-semibold text-${c.color}-300 mb-3`}>
+              {c.title}
+            </h3>
             <ul className="text-xs text-[var(--muted)] space-y-1">
               {c.pts.map((p) => (
                 <li key={p}>• {p}</li>
@@ -381,12 +470,22 @@ function MakefileAutomationSlide() {
     {
       title: "Azure ML Ops",
       color: "orange",
-      pts: ["register-environment", "register-example-dataset", "run-pipeline", "create-compute"],
+      pts: [
+        "register-environment",
+        "register-example-dataset",
+        "run-pipeline",
+        "create-compute",
+      ],
     },
     {
       title: "Developer Productivity",
       color: "amber",
-      pts: ["create-experiment", "list-compute", "start/stop-compute", "generate-conda-yml"],
+      pts: [
+        "create-experiment",
+        "list-compute",
+        "start/stop-compute",
+        "generate-conda-yml",
+      ],
     },
   ];
   return (
@@ -403,7 +502,9 @@ function MakefileAutomationSlide() {
             delay={0.2 + i * 0.15}
             className={`surface p-6 rounded-xl border-l-4 border-${g.color}-500`}
           >
-            <h3 className={`text-lg font-semibold text-${g.color}-300 mb-3`}>{g.title}</h3>
+            <h3 className={`text-lg font-semibold text-${g.color}-300 mb-3`}>
+              {g.title}
+            </h3>
             <ul className="text-xs text-[var(--muted)] space-y-1">
               {g.pts.map((p) => (
                 <li key={p}>• {p}</li>
@@ -416,7 +517,8 @@ function MakefileAutomationSlide() {
         delay={0.75}
         className="mt-8 surface p-4 rounded-xl text-center text-sm text-[var(--muted)]"
       >
-        Single automation surface reduces cognitive overhead & ensures repeatability.
+        Single automation surface reduces cognitive overhead & ensures
+        repeatability.
       </FadeIn>
     </div>
   );
@@ -432,7 +534,9 @@ function DevEnvironmentSlide() {
       </FadeIn>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <FadeIn delay={0.2} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-green-300 mb-3">Dev Container</h3>
+          <h3 className="text-lg font-semibold text-green-300 mb-3">
+            Dev Container
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Reopen in container: consistent toolchain</li>
             <li>• uv dependency management</li>
@@ -441,7 +545,9 @@ function DevEnvironmentSlide() {
           </ul>
         </FadeIn>
         <FadeIn delay={0.35} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-teal-300 mb-3">Local Workflow</h3>
+          <h3 className="text-lg font-semibold text-teal-300 mb-3">
+            Local Workflow
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Login: az login (tenant selection)</li>
             <li>• VPN download + connect via make targets</li>
@@ -459,17 +565,32 @@ function SecurityNetworkingSlide() {
     {
       title: "Isolation",
       color: "red",
-      pts: ["Private endpoints", "VNet segmentation", "NSG traffic control", "No public ML exposure"],
+      pts: [
+        "Private endpoints",
+        "VNet segmentation",
+        "NSG traffic control",
+        "No public ML exposure",
+      ],
     },
     {
       title: "Access",
       color: "rose",
-      pts: ["VPN gateway for secure ingress", "Managed identities", "RBAC principle of least privilege", "Federated SP for CI"],
+      pts: [
+        "VPN gateway for secure ingress",
+        "Managed identities",
+        "RBAC principle of least privilege",
+        "Federated SP for CI",
+      ],
     },
     {
       title: "Governance",
       color: "orange",
-      pts: ["ADR process", "State locking", "Scripted backend creation", "Audit via plans"],
+      pts: [
+        "ADR process",
+        "State locking",
+        "Scripted backend creation",
+        "Audit via plans",
+      ],
     },
   ];
   return (
@@ -486,7 +607,9 @@ function SecurityNetworkingSlide() {
             delay={0.2 + i * 0.15}
             className={`surface p-6 rounded-xl border-l-4 border-${c.color}-500`}
           >
-            <h3 className={`text-lg font-semibold text-${c.color}-300 mb-3`}>{c.title}</h3>
+            <h3 className={`text-lg font-semibold text-${c.color}-300 mb-3`}>
+              {c.title}
+            </h3>
             <ul className="text-xs text-[var(--muted)] space-y-1">
               {c.pts.map((p) => (
                 <li key={p}>• {p}</li>
@@ -509,24 +632,52 @@ function DeploymentFlowSlide() {
       </FadeIn>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { step: "1", title: "Init Backend", color: "sky", desc: "Create storage & state container" },
-          { step: "2", title: "Base Apply", color: "cyan", desc: "Network, DNS, VPN, RG" },
-          { step: "3", title: "ML Workspace", color: "blue", desc: "Workspace + compute clusters" },
-          { step: "4", title: "ML Ops", color: "indigo", desc: "Register env/dataset & run pipelines" },
+          {
+            step: "1",
+            title: "Init Backend",
+            color: "sky",
+            desc: "Create storage & state container",
+          },
+          {
+            step: "2",
+            title: "Base Apply",
+            color: "cyan",
+            desc: "Network, DNS, VPN, RG",
+          },
+          {
+            step: "3",
+            title: "ML Workspace",
+            color: "blue",
+            desc: "Workspace + compute clusters",
+          },
+          {
+            step: "4",
+            title: "ML Ops",
+            color: "indigo",
+            desc: "Register env/dataset & run pipelines",
+          },
         ].map((s, i) => (
           <FadeIn
             key={s.step}
             delay={0.2 + i * 0.12}
             className={`surface p-5 rounded-xl border-l-4 border-${s.color}-500 text-center`}
           >
-            <div className={`text-${s.color}-300 font-bold text-xl mb-2`}>Step {s.step}</div>
+            <div className={`text-${s.color}-300 font-bold text-xl mb-2`}>
+              Step {s.step}
+            </div>
             <h3 className="font-semibold text-white mb-1">{s.title}</h3>
-            <p className="text-xs text-[var(--muted)] leading-relaxed">{s.desc}</p>
+            <p className="text-xs text-[var(--muted)] leading-relaxed">
+              {s.desc}
+            </p>
           </FadeIn>
         ))}
       </div>
-      <FadeIn delay={0.8} className="mt-8 surface p-4 rounded-xl text-center text-sm text-[var(--muted)]">
-        GitHub Actions workflow (planned) will codify end‑to‑end promotion with federated creds.
+      <FadeIn
+        delay={0.8}
+        className="mt-8 surface p-4 rounded-xl text-center text-sm text-[var(--muted)]"
+      >
+        GitHub Actions workflow (planned) will codify end‑to‑end promotion with
+        federated creds.
       </FadeIn>
     </div>
   );
@@ -542,7 +693,9 @@ function CostOptimizationSlide() {
       </FadeIn>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <FadeIn delay={0.2} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-purple-300 mb-3">Strategies</h3>
+          <h3 className="text-lg font-semibold text-purple-300 mb-3">
+            Strategies
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Scale to zero clusters (idle_duration)</li>
             <li>• LowPriority for non-critical test compute</li>
@@ -551,7 +704,9 @@ function CostOptimizationSlide() {
           </ul>
         </FadeIn>
         <FadeIn delay={0.35} className="surface p-6 rounded-xl">
-          <h3 className="text-lg font-semibold text-violet-300 mb-3">Governance</h3>
+          <h3 className="text-lg font-semibold text-violet-300 mb-3">
+            Governance
+          </h3>
           <ul className="text-sm text-[var(--muted)] space-y-2">
             <li>• Variable-driven sizing per env</li>
             <li>• Separation of prod vs dev state backends</li>
@@ -566,10 +721,26 @@ function CostOptimizationSlide() {
 
 function TroubleshootingSlide() {
   const issues = [
-    { title: "Terraform auth errors", color: "red", fix: "az login & correct subscription selection" },
-    { title: "State locking", color: "rose", fix: "Wait or force-unlock with ID" },
-    { title: "Private endpoint DNS", color: "orange", fix: "Verify DNS zone & resolver linkage" },
-    { title: "VPN connection", color: "amber", fix: "Download profile & ensure AAD permissions" },
+    {
+      title: "Terraform auth errors",
+      color: "red",
+      fix: "az login & correct subscription selection",
+    },
+    {
+      title: "State locking",
+      color: "rose",
+      fix: "Wait or force-unlock with ID",
+    },
+    {
+      title: "Private endpoint DNS",
+      color: "orange",
+      fix: "Verify DNS zone & resolver linkage",
+    },
+    {
+      title: "VPN connection",
+      color: "amber",
+      fix: "Download profile & ensure AAD permissions",
+    },
   ];
   return (
     <div className="h-full p-8 flex flex-col justify-center">
@@ -585,8 +756,12 @@ function TroubleshootingSlide() {
             delay={0.2 + idx * 0.12}
             className={`surface p-5 rounded-xl border-l-4 border-${i.color}-500`}
           >
-            <h3 className={`text-sm font-semibold text-${i.color}-300 mb-2`}>{i.title}</h3>
-            <p className="text-xs text-[var(--muted)] leading-relaxed">{i.fix}</p>
+            <h3 className={`text-sm font-semibold text-${i.color}-300 mb-2`}>
+              {i.title}
+            </h3>
+            <p className="text-xs text-[var(--muted)] leading-relaxed">
+              {i.fix}
+            </p>
           </FadeIn>
         ))}
       </div>
@@ -612,7 +787,11 @@ function RoadmapSlide() {
       <FadeIn className="surface p-8 rounded-xl max-w-4xl mx-auto">
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[var(--muted)]">
           {items.map((it, i) => (
-            <li key={it} className="surface px-4 py-3 rounded border border-white/5" style={{ animationDelay: `${i * 90}ms` }}>
+            <li
+              key={it}
+              className="surface px-4 py-3 rounded border border-white/5"
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
               • {it}
             </li>
           ))}
@@ -633,8 +812,12 @@ function QASlide() {
       >
         Questions?
       </motion.h2>
-      <FadeIn delay={0.4} className="max-w-3xl text-[var(--muted)] leading-relaxed text-lg">
-        Happy to dive deeper into infrastructure modules, ML environment promotion, notebook-to-workflow lifecycle or governance strategy.
+      <FadeIn
+        delay={0.4}
+        className="max-w-3xl text-[var(--muted)] leading-relaxed text-lg"
+      >
+        Happy to dive deeper into infrastructure modules, ML environment
+        promotion, notebook-to-workflow lifecycle or governance strategy.
       </FadeIn>
     </div>
   );
