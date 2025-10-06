@@ -1,6 +1,16 @@
-type Props = { index: number; total: number; onPrev?: () => void; onNext?: () => void }
+type Props = {
+  index: number;
+  total: number;
+  onPrev?: () => void;
+  onNext?: () => void;
+};
 
-export default function PresentationControls({ index, total, onPrev, onNext }: Props) {
+export default function PresentationControls({
+  index,
+  total,
+  onPrev,
+  onNext,
+}: Props) {
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2">
       <div className="surface px-2 py-1.5 flex items-center gap-1.5 backdrop-blur">
@@ -25,5 +35,5 @@ export default function PresentationControls({ index, total, onPrev, onNext }: P
         </button>
       </div>
     </div>
-  )
+  );
 }

@@ -4,7 +4,8 @@ import presentations from "../presentations";
 import Deck from "../shared/deck/Deck";
 import Slide from "../shared/deck/Slide";
 import useDeckNavigation from "../shared/deck/useDeckNavigation";
-import PresentationControls from "../shared/deck/PresentationControls";
+import useSyncedSlideIndex from "../shared/deck/useSyncedSlideIndex";
+import SpeakerOverlay from "../shared/deck/SpeakerOverlay";
 import type { PresentationEntry, SlideMeta } from "../types";
 
 export default function DeckRunner() {
@@ -15,9 +16,27 @@ export default function DeckRunner() {
     [id]
   );
 
-  const [index, setIndex] = useState(0);
   const total = entry?.slides?.length ?? 0;
+  const { index, setIndex } = useSyncedSlideIndex({
+    deckId: entry?.id,
+    total,
+  });
   const { goNext, goPrev } = useDeckNavigation({ index, setIndex, total });
+  const [showSpeakerOverlay, setShowSpeakerOverlay] = useState(false);
+
+  const activeSlideMeta = useMemo<SlideMeta | undefined>(() => {
+    if (!entry) {
+      return undefined;
+    }
+    if (index === 0) {
+      return undefined;
+    }
+    return entry.slides?.[index - 1];
+  }, [entry, index]);
+
+  const toggleSpeakerOverlay = () => {
+    setShowSpeakerOverlay((prev) => !prev);
+  };
 
   if (!entry) {
     return (
@@ -49,6 +68,8 @@ export default function DeckRunner() {
         total={total}
         onPrev={goPrev}
         onNext={goNext}
+        showSpeakerOverlay={showSpeakerOverlay}
+        onToggleSpeakerOverlay={toggleSpeakerOverlay}
       >
         <Slide>
           <div className="mx-auto max-w-5xl px-4 py-8">
@@ -59,7 +80,7 @@ export default function DeckRunner() {
               {entry.title}
             </h2>
             <p className="mt-3 text-[var(--muted)]">
-              Keyboard: ← → Space. Click anywhere to focus.
+              Keyboard: ← → Space to navigate, "n" to toggle notes, esc to exit.
             </p>
           </div>
         </Slide>
@@ -69,6 +90,13 @@ export default function DeckRunner() {
           </Slide>
         ))}
       </Deck>
+      <SpeakerOverlay
+        visible={showSpeakerOverlay}
+        slideId={activeSlideMeta?.id ?? "intro"}
+        entryTitle={entry.title}
+        notes={activeSlideMeta?.speakerNotes}
+        onClose={() => setShowSpeakerOverlay(false)}
+      />
     </div>
   );
 }

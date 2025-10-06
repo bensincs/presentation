@@ -5,18 +5,136 @@ import { DeckComponentProps, SlideMeta } from "../../types";
 
 // Slide metadata with transitions
 export const conceptToCockpitSlides: SlideMeta[] = [
-  { id: "title", transition: "fade" },
-  { id: "overview", transition: "slide" },
-  { id: "challenge", transition: "slide" },
-  { id: "three-tracks", transition: "slide" },
-  { id: "track1", transition: "slide" },
-  { id: "track2", transition: "slide" },
-  { id: "track3", transition: "slide" },
-  { id: "technologies", transition: "slide" },
-  { id: "results", transition: "slide" },
-  { id: "demo-flow", transition: "slide" },
-  { id: "impact", transition: "slide" },
-  { id: "qa", transition: "fade" },
+  {
+    id: "title",
+    transition: "fade",
+    speakerNotes: [
+      "Open with energy: remind the room this deck compresses a three-day hack into a cockpit-ready outcome.",
+      "Reconnect to the CES3 hackathon brief and why aviation velocity plus auditability is non-negotiable.",
+      "Preview that every artifact they see — requirements, code, missions — was generated from the same structured spec.",
+      "Invite them to hold questions; we will have a dedicated deep-dive during the Q&A slide.",
+    ],
+  },
+  {
+    id: "overview",
+    transition: "slide",
+    speakerNotes: [
+      "Define ConceptToCockpit as an end-to-end pipeline: requirements capture, code generation, simulation evidence.",
+      "Call out the North Star goal and stress “audit-ready” — every hop is traceable back to an approved requirement.",
+      "Highlight the time targets on the right: 60 minutes to approved HLR, five minutes from push to bundle, 90%+ mission pass.",
+      "Underline the three operating principles: data-driven structures, traceability across the stack, reproducibility from a clean clone.",
+      "Let the audience know these principles guided every decision in the solution we are about to unpack.",
+    ],
+  },
+  {
+    id: "challenge",
+    transition: "slide",
+    speakerNotes: [
+      "Frame the baseline problem: aerospace certification demands verifiable linkage from specs to simulations.",
+      "Explain that manual handoffs between disciplines are slow and lossy, creating audit gaps and rework.",
+      "Emphasize the requirement for objective evidence over 100 mission profiles; that volume is the pain point.",
+      "Mention regulators and OEM partners expect digital traceability, not just engineering intent.",
+      "Set up the next slide by teasing how we split the work into three synchronized tracks to attack those pain points.",
+    ],
+  },
+  {
+    id: "three-tracks",
+    transition: "slide",
+    speakerNotes: [
+      "Introduce the three-track operating model: Requirements, Prototype, Simulation — all advancing in parallel.",
+      "Clarify that each track has automated hand-offs: HLRs generate LLRs, those scaffold code, code feeds test harnesses.",
+      "Explain the orchestration layer keeps the tracks synchronized through Git automation and CI triggers.",
+      "Note that the tracks are staffed cross-functionally but rely on the same spec data, preventing divergence.",
+      "Preview that the next three slides will double-click into each track to show workflow and tooling depth.",
+    ],
+  },
+  {
+    id: "track1",
+    transition: "slide",
+    speakerNotes: [
+      "Describe Track 1 as the requirements engineering pipeline anchored in structured YAML specs.",
+      "Walk through: ingest drawing → generate HLR → auto-suggest LLR with acceptance criteria → human sign-off.",
+      "Stress the governance controls: pull-request templates enforce trace links and verification checklists.",
+      "Call out that every requirement lives with metadata (origin, rationale, verification method) for audit trails.",
+      "Mention that once approved, the spec emits trace tables consumed downstream by the prototype and sim teams.",
+    ],
+  },
+  {
+    id: "track2",
+    transition: "slide",
+    speakerNotes: [
+      "Explain Track 2 covers prototype development and UI gauge generation directly from the signed spec.",
+      "Break down the toolchain: codegen templates, component library, story-driven previews, automated linting.",
+      "Highlight telemetry hooks added by default so simulation runs can capture outputs for scoring.",
+      "Mention hot-reload demos that let SMEs see requirement deltas reflected in UI without manual wiring.",
+      "Reinforce that all commits stamp the requirement IDs they satisfy, ensuring traceability back to Track 1.",
+    ],
+  },
+  {
+    id: "track3",
+    transition: "slide",
+    speakerNotes: [
+      "Position Track 3 as the mission simulation and validation factory built on the same spec artifacts.",
+      "Outline the flow: scenario templates → mission generator → Azure Batch runs → scoring + evidence packaging.",
+      "Note 100 mission profiles execute automatically, logging pass/fail against each derived requirement.",
+      "Explain how results publish to an evidence catalog with immutable IDs for certification teams.",
+      "Call out the feedback loop: failed missions open issues pre-tagged with the associated requirement and code asset.",
+    ],
+  },
+  {
+    id: "technologies",
+    transition: "slide",
+    speakerNotes: [
+      "List the backbone tech: Azure DevOps for repos/pipelines, OpenAI for spec-to-code suggestions, Grafana for telemetry.",
+      "Explain how the model selection balances generation quality with the need for deterministic outputs.",
+      "Call attention to containerized runtime environments to guarantee consistent builds across tracks.",
+      "Mention integration with enterprise systems: PLM connectors, digital thread APIs, certification document tooling.",
+      "Stress the teams can swap components (e.g., use GitHub instead of Azure DevOps) because everything is infrastructure-as-code.",
+    ],
+  },
+  {
+    id: "results",
+    transition: "slide",
+    speakerNotes: [
+      "Share headline numbers: achieved 93% mission pass rate on the first automated run; remediation closed the gap to 100%.",
+      "Point out we met the 60-minute goal for HLR approval using structured reviews and AI-assisted drafting.",
+      "Highlight stakeholder feedback snippets — especially regulators praising the audit evidence bundle.",
+      "Mention the full traceability matrix generated automatically, reducing compliance prep from weeks to minutes.",
+      "Reiterate that the entire pipeline is reproducible from a clean clone with a single command documented in the repo.",
+    ],
+  },
+  {
+    id: "demo-flow",
+    transition: "slide",
+    speakerNotes: [
+      "Narrate the live demo sequence: start in the spec editor, approve change, watch CI kick off, see UI update, then simulation results.",
+      "Explain checkpoints where a human signs off versus where automation takes over to satisfy compliance requirements.",
+      "Call out telemetry dashboards that light up during the run and how to interpret the mission pass/fail visualizations.",
+      "Remind the audience the bundle packaged at the end contains requirements, code, binaries, tests, and evidence PDFs.",
+      "Invite them to focus on how little manual wiring exists—the workflow is driven entirely by structured data and scripts.",
+    ],
+  },
+  {
+    id: "impact",
+    transition: "slide",
+    speakerNotes: [
+      "Frame the business impact: faster airworthiness reviews, reduced engineering toil, stronger regulator confidence.",
+      "Quantify savings: estimate engineering hours saved per gauge program and accelerated certification timelines.",
+      "Discuss cultural impact—teams collaborate through artifacts instead of meetings, enabling asynchronous velocity.",
+      "Highlight extensibility: same pattern can support other cockpit systems or future aircraft variants.",
+      "Emphasize that the approach creates a living digital thread; future changes re-run the entire pipeline automatically.",
+    ],
+  },
+  {
+    id: "qa",
+    transition: "fade",
+    speakerNotes: [
+      "Invite technical questions, especially around AI guardrails, traceability mechanics, and certification readiness.",
+      "Be ready to dive into repositories or pipelines if someone asks about implementation specifics.",
+      "Offer follow-up sessions for stakeholders who want to see the pipeline running in their environment.",
+      "Thank contributors from each track and reiterate next steps: pilot program selection and integration planning.",
+    ],
+  },
 ];
 
 // Slide titles for reference

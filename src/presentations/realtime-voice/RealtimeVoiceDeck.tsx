@@ -4,9 +4,30 @@ import DeckDisclaimer from "../components/DeckDisclaimer";
 import type { DeckComponentProps, SlideMeta } from "../../types";
 
 export const realtimeVoiceSlides: SlideMeta[] = [
-  { id: "title", transition: "fade" },
-  { id: "overview", transition: "slide" },
-  { id: "features", transition: "slide" },
+  {
+    id: "title",
+    transition: "fade",
+    speakerNotes: [
+      "Set context: name the project and remind folks it is live today.",
+      "Highlight that the digital human is powered by Azure OpenAI Realtime.",
+      "Invite the audience to imagine end-to-end automated conversations.",
+    ],
+  },
+  {
+    id: "overview",
+    transition: "slide",
+    speakerNotes: [
+      "Walk through the purpose section left to right.",
+      "Emphasize core value bullet that resonates for the audience.",
+      "Call out that this is a packaged playbook for customer teams.",
+    ],
+  },
+  {
+    id: "features",
+    transition: "slide",
+    speakerNotes:
+      "Group the four pillars and give a real-life example for each feature cluster.",
+  },
   { id: "architecture", transition: "slide" },
   { id: "repo-structure", transition: "slide" },
   { id: "tech-stack", transition: "slide" },

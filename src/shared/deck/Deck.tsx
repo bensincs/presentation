@@ -8,6 +8,8 @@ type Props = PropsWithChildren<{
   total: number;
   onPrev?: () => void;
   onNext?: () => void;
+  showSpeakerOverlay?: boolean;
+  onToggleSpeakerOverlay?: () => void;
 }>;
 
 export default function Deck({
@@ -17,6 +19,8 @@ export default function Deck({
   children,
   onPrev,
   onNext,
+  showSpeakerOverlay,
+  onToggleSpeakerOverlay,
 }: Props) {
   const hostRef = useRef(null);
 
@@ -28,6 +32,7 @@ export default function Deck({
     if (e.key === "ArrowRight" || e.key === " ") onNext?.();
     if (e.key === "ArrowLeft") onPrev?.();
     if (e.key === "Escape") window.location.href = "/";
+    if (e.key.toLowerCase() === "n") onToggleSpeakerOverlay?.();
   };
 
   return (

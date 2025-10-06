@@ -2,6 +2,7 @@ export type SlideMeta = {
   id: string;
   transition?: "fade" | "slide" | "up" | "scale";
   className?: string;
+  speakerNotes?: string | string[];
 };
 
 export type DeckComponentProps = {
