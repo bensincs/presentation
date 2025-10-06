@@ -1,6 +1,9 @@
 import ConceptToCockpitDeck, {
   conceptToCockpitSlides,
 } from "./concept-to-cockpit/ConceptToCockpitDeck";
+import EngagementLaunchpadDeck, {
+  engagementLaunchpadSlides,
+} from "./engagement-launchpad/EngagementLaunchpadDeck";
 import MedicineDeliveryDeck, {
   medicineDeliverySlides,
 } from "./medicine-delivery/MedicineDeliveryDeck";
@@ -17,13 +20,23 @@ import type { PresentationEntry } from "../types";
 
 const presentations: PresentationEntry[] = [
   {
+    id: "engagement-launchpad",
+    title: "Engagement Launchpad",
+    subtitle: "Signal-first lifecycle activation playbook",
+    author: "Ben Sinclair",
+    state: "WIP",
+    subjects: ["Present"],
+    slides: engagementLaunchpadSlides,
+    component: EngagementLaunchpadDeck,
+  },
+  {
     id: "concept-to-cockpit",
     title: "ConceptToCockpit",
     subtitle: "Hyper Velocity Engineering in Aviation",
     author: "Ben Sinclair",
-    aiOnly: false,
+    state: "Archived",
+    subjects: ["Present"],
     slides: conceptToCockpitSlides,
-    doNotUse: true,
     component: ConceptToCockpitDeck,
   },
   {
@@ -31,8 +44,9 @@ const presentations: PresentationEntry[] = [
     title: "Medicine Delivery POC",
     subtitle: "HVE Reference Implementation (Azure + Spring Boot)",
     author: "Ben Sinclair",
+    state: "Archived",
+    subjects: ["Present"],
     slides: medicineDeliverySlides,
-    doNotUse: true,
     component: MedicineDeliveryDeck,
   },
   {
@@ -40,8 +54,9 @@ const presentations: PresentationEntry[] = [
     title: "SaaS Builder",
     subtitle: "Azure Marketplace Acceleration Monorepo",
     author: "Ben Sinclair",
+    state: "Archived",
+    subjects: ["Present"],
     slides: saasBuilderSlides,
-    doNotUse: true,
     component: SaaSBuilderDeck,
   },
   {
@@ -49,8 +64,9 @@ const presentations: PresentationEntry[] = [
     title: "Digital Human (Realtime Voice)",
     subtitle: "Azure OpenAI Realtime Voice Assistant",
     author: "Ben Sinclair",
+    state: "Archived",
+    subjects: ["Present"],
     slides: realtimeVoiceSlides,
-    doNotUse: true,
     component: RealtimeVoiceDeck,
   },
   {
@@ -58,8 +74,9 @@ const presentations: PresentationEntry[] = [
     title: "Traffic Manager",
     subtitle: "Azure ML Infrastructure & Experimentation Platform",
     author: "Ben Sinclair",
+    state: "Archived",
+    subjects: ["Present"],
     slides: trafficManagerSlides,
-    doNotUse: true,
     component: TrafficManagerDeck,
   },
 ];

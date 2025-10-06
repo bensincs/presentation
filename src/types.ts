@@ -9,13 +9,15 @@ export type DeckComponentProps = {
   idx?: number;
 };
 
+export type PresentationState = "WIP" | "In Review" | "Ready" | "Archived";
+
 export type PresentationEntry = {
   id: string;
   title: string;
   subtitle?: string;
   author: string;
-  aiOnly?: boolean;
-  doNotUse?: boolean;
+  state: PresentationState;
+  subjects: string[];
   slides: SlideMeta[];
   component: React.ComponentType<DeckComponentProps>;
 };
