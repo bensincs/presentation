@@ -1,6 +1,7 @@
 import React from "react";
-import { DeckComponentProps, SlideMeta } from "../../types";
 import { motion } from "framer-motion";
+import DeckDisclaimer from "../components/DeckDisclaimer";
+import { DeckComponentProps, SlideMeta } from "../../types";
 
 // Slide metadata with transitions
 export const conceptToCockpitSlides: SlideMeta[] = [
@@ -1258,16 +1259,23 @@ export default function ConceptToCockpitDeck({
     qa: <QASlide />,
   };
 
-  return (
-    slideComponents[slide.id] || (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-white">
-            {slideTitles[slide.id] || slide.id}
-          </h1>
-          <p className="text-gray-400">Slide content coming soon...</p>
-        </div>
+  const fallback = (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-white">
+          {slideTitles[slide.id] || slide.id}
+        </h1>
+        <p className="text-gray-400">Slide content coming soon...</p>
       </div>
-    )
+    </div>
+  );
+
+  const content = slideComponents[slide.id] || fallback;
+
+  return (
+    <div className="flex h-full flex-col">
+      <DeckDisclaimer />
+      <div className="flex-1 overflow-hidden">{content}</div>
+    </div>
   );
 }

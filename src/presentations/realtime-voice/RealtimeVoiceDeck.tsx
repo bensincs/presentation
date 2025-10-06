@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import DeckDisclaimer from "../components/DeckDisclaimer";
 import type { DeckComponentProps, SlideMeta } from "../../types";
 
 export const realtimeVoiceSlides: SlideMeta[] = [
@@ -969,16 +970,23 @@ export default function RealtimeVoiceDeck({ slide }: DeckComponentProps) {
     roadmap: <RoadmapSlide />,
     qa: <QASlide />,
   };
-  return (
-    slides[slide.id] || (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">{slide.id}</h2>
-          <p className="text-[var(--muted)] mt-2">
-            Slide content not yet implemented.
-          </p>
-        </div>
+  const fallback = (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold">{slide.id}</h2>
+        <p className="mt-2 text-[var(--muted)]">
+          Slide content not yet implemented.
+        </p>
       </div>
-    )
+    </div>
+  );
+
+  const content = slides[slide.id] || fallback;
+
+  return (
+    <div className="flex h-full flex-col">
+      <DeckDisclaimer />
+      <div className="flex-1 overflow-hidden">{content}</div>
+    </div>
   );
 }

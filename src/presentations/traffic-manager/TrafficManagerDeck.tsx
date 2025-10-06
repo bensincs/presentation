@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import DeckDisclaimer from "../components/DeckDisclaimer";
 import type { DeckComponentProps, SlideMeta } from "../../types";
 
 export const trafficManagerSlides: SlideMeta[] = [
@@ -843,7 +844,25 @@ const slideMap: Record<string, React.ReactNode> = {
 };
 
 const TrafficManagerDeck: React.FC<DeckComponentProps> = ({ slide }) => {
-  return <>{slideMap[slide.id]}</>;
+  const fallback = (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold">{slide.id}</h2>
+        <p className="mt-2 text-[var(--muted)]">
+          Slide content not yet implemented.
+        </p>
+      </div>
+    </div>
+  );
+
+  const content = slideMap[slide.id] || fallback;
+
+  return (
+    <div className="flex h-full flex-col">
+      <DeckDisclaimer />
+      <div className="flex-1 overflow-hidden">{content}</div>
+    </div>
+  );
 };
 
 export default TrafficManagerDeck;
