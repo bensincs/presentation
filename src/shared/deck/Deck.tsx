@@ -10,6 +10,7 @@ type Props = PropsWithChildren<{
   onNext?: () => void;
   showSpeakerOverlay?: boolean;
   onToggleSpeakerOverlay?: () => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
 }>;
 
 export default function Deck({
@@ -21,6 +22,7 @@ export default function Deck({
   onNext,
   showSpeakerOverlay,
   onToggleSpeakerOverlay,
+  onKeyDown,
 }: Props) {
   const hostRef = useRef(null);
 
@@ -29,10 +31,14 @@ export default function Deck({
   }, []);
 
   const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    onKeyDown?.(e);
+    if (e.defaultPrevented) {
+      return;
+    }
     if (e.key === "ArrowRight" || e.key === " ") onNext?.();
     if (e.key === "ArrowLeft") onPrev?.();
-    if (e.key === "Escape") window.location.href = "/";
     if (e.key.toLowerCase() === "n") onToggleSpeakerOverlay?.();
+    if (e.key === "Escape") window.location.href = "/";
   };
 
   return (
@@ -84,6 +90,8 @@ export default function Deck({
         total={total}
         onPrev={onPrev}
         onNext={onNext}
+        showSpeakerOverlay={showSpeakerOverlay}
+        onToggleSpeakerOverlay={onToggleSpeakerOverlay}
       />
     </section>
   );
