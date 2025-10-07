@@ -73,27 +73,27 @@ export const azurermContribSlides: SlideMeta[] = [
     id: "resource-schema",
     transition: "slide",
     speakerNotes: [
-      "Now we start the hands-on portion with a typed resource example for a resource group. Create internal/services/resource/resource_group_example_resource.go and declare the empty struct that will satisfy sdk.Resource.",
-      "Mirror the Terraform schema in a Go model with tfschema tags, order arguments with identifier pieces first, then location, then required and optional fields.",
-      "Expose Arguments, Attributes, ModelObject, ResourceType, and IDValidationFunc -- once those compile we have the skeleton that Terraform will interrogate for schema and ID rules.",
+      "Here is the live file: internal/services/machinelearning/machine_learning_workspace_resource.go. The resourceMachineLearningWorkspace function is the exact shape we follow.",
+      "The Schema map layers commonschema helpers, Azure ID validators, and ForceNew flags—identifiers and location first, then everything from identities to networking.",
+      "Getting this block correct sets the contract for CRUD and docs; lean on shared helpers and keep parity with the Azure API surface.",
     ],
   },
   {
     id: "resource-crud",
     transition: "slide",
     speakerNotes: [
-      "With the schema locked in, wire up the lifecycle. In Create, decode the config, build the ID with resources.NewResourceGroupID, check for an existing resource to avoid adoption, and call CreateOrUpdate before setting the ID in state.",
-      "Read parses the ID from state, fetches the resource, normalizes fields like location, and encodes the model back so plans stay accurate. Update mirrors Create but reuses the existing ID and only touches fields that changed.",
-      "Delete leans on DeleteThenPoll to handle Azure long-running operations; when the SDK lacks that helper, drop in a custom poller, but this pattern covers most ARM endpoints.",
+      "Create for the workspace decodes config, builds the ID with workspaces.NewWorkspaceID, guards with response.WasNotFound, then calls CreateOrUpdateThenPoll.",
+      "Update starts from the existing payload, toggles only changed fields—identity, networking, tags—and reuses CreateOrUpdateThenPoll so long-running operations are covered.",
+      "Delete shows the clean pattern: honor purge feature flags, call client.Delete, then wait on future.Poller.PollUntilDone so Terraform stays synchronized.",
     ],
   },
   {
     id: "resource-registration",
     transition: "slide",
     speakerNotes: [
-      "Once the resource compiles, register it with the service package. Implement the Registration struct so it satisfies sdk.TypedServiceRegistration, return the new resource in Resources, and add the registration to internal/provider/services.go.",
-      "Ship acceptance tests alongside the code covering basic, complete, requires-import, and update scenarios, so reviewers see end-to-end proof.",
-      "Finish by updating the website docs, adding a changelog entry under Unreleased, and capturing test evidence; that trifecta keeps releases unblocked and gives maintainers confidence to merge.",
+      "The same package exposes a Registration struct that returns resourceMachineLearningWorkspace()—that is what the provider enumerates.",
+      "Wire that registration into internal/provider/services.go next to the other services so the provider instantiates the workspace resource.",
+      "Close the loop with the usual trio: acceptance tests, docs, and changelog entries shipped alongside this workspace example.",
     ],
   },
   {
@@ -538,8 +538,8 @@ function ResourceSchemaSlide() {
       <FadeIn className="mb-8 text-center">
         <h2 className={gradientTitle}>Define Model & Schema</h2>
         <p className="mt-3 text-sm text-[var(--muted)] max-w-3xl mx-auto">
-          Typed resources start with a Go struct, a Terraform model, and schema
-          functions that wire configuration into the SDK.
+          AzureRM’s machine learning workspace resource shows the full schema
+          pattern—helpers, validation, and nested blocks all in one place.
         </p>
       </FadeIn>
       <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
@@ -547,67 +547,88 @@ function ResourceSchemaSlide() {
           <span className={subtlePill}>File Scaffold</span>
           <ul className={mutedList}>
             <li>
-              • Create{" "}
+              • Real file:{" "}
               <code>
-                internal/services/resource/resource_group_example_resource.go
-              </code>{" "}
-              and declare the empty struct.
+                internal/services/machinelearning/machine_learning_workspace_resource.go
+              </code>
+              .
             </li>
             <li>
-              • Model struct mirrors schema fields using <code>tfschema</code>{" "}
-              tags.
+              • <code>resourceMachineLearningWorkspace</code> returns the{" "}
+              <code>*pluginsdk.Resource</code> with CRUD hooks.
             </li>
             <li>
-              • Order arguments: ID parts → <code>location</code> → required →
-              optional.
+              • Schema entries use shared helpers like{" "}
+              <code>commonschema.Location()</code>,{" "}
+              <code>commonschema.ResourceGroupName()</code>, and Azure ID
+              validators.
             </li>
             <li>
-              • Use shared helpers (e.g., <code>commonschema.Location()</code>)
-              to match other resources.
+              • Group fields by API contract—identifiers, identity, encryption,
+              networking, then miscellaneous toggles.
             </li>
             <li>
-              • Let the compiler drive the todo list—implement each{" "}
-              <code>sdk.Resource</code> method as Go complains about it.
+              • Nested blocks (identity, managed_network, serverless_compute)
+              keep their own schema maps for readability.
             </li>
           </ul>
         </FadeIn>
         <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
           <span className={subtlePill}>Schema & Model</span>
           <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
-            {`type ResourceGroupExampleResource struct{}
+            {`func resourceMachineLearningWorkspace() *pluginsdk.Resource {
+  return &pluginsdk.Resource{
+    Create: resourceMachineLearningWorkspaceCreate,
+    Read:   resourceMachineLearningWorkspaceRead,
+    Update: resourceMachineLearningWorkspaceUpdate,
+    Delete: resourceMachineLearningWorkspaceDelete,
 
-type ResourceGroupExampleResourceModel struct {
-  Name     string            \`tfschema:"name"\`
-  Location string            \`tfschema:"location"\`
-  Tags     map[string]string \`tfschema:"tags"\`
-}
+    Importer: pluginsdk.ImporterValidatingResourceId(func(id string) error {
+      _, err := workspaces.ParseWorkspaceID(id)
+      return err
+    }),
 
-func (ResourceGroupExampleResource) Arguments() map[string]*pluginsdk.Schema {
-  return map[string]*pluginsdk.Schema{
-    "name": {
-      Type:         pluginsdk.TypeString,
-      Required:     true,
-      ValidateFunc: validation.StringIsNotEmpty,
+    Timeouts: &pluginsdk.ResourceTimeout{...},
+
+    Schema: map[string]*pluginsdk.Schema{
+      "name": {
+        Type:         pluginsdk.TypeString,
+        Required:     true,
+        ForceNew:     true,
+        ValidateFunc: validate.WorkspaceName,
+      },
+      "location":            commonschema.Location(),
+      "resource_group_name": commonschema.ResourceGroupName(),
+      "application_insights_id": {
+        Type:         pluginsdk.TypeString,
+        Required:     true,
+        ForceNew:     true,
+        ValidateFunc: components.ValidateComponentID,
+        DiffSuppressFunc: suppress.CaseDifference,
+      },
+      ...
+      "serverless_compute": {
+        Type:     pluginsdk.TypeList,
+        Optional: true,
+        MaxItems: 1,
+        Elem: &pluginsdk.Resource{
+          Schema: map[string]*pluginsdk.Schema{
+            "subnet_id": {
+              Type:         pluginsdk.TypeString,
+              Optional:     true,
+              ValidateFunc: commonids.ValidateSubnetID,
+            },
+            "public_ip_enabled": {
+              Type:     pluginsdk.TypeBool,
+              Optional: true,
+              Default:  false,
+            },
+          },
+        },
+      },
+      "tags": commonschema.Tags(),
     },
-    "location": commonschema.Location(),
-    "tags":     commonschema.Tags(),
   }
-}
-
-func (ResourceGroupExampleResource) Attributes() map[string]*pluginsdk.Schema {
-  return map[string]*pluginsdk.Schema{}
-}
-
-func (ResourceGroupExampleResource) ModelObject() interface{} {
-  return &ResourceGroupExampleResourceModel{}
-}
-
-func (ResourceGroupExampleResource) ResourceType() string {
-  return "azurerm_resource_group_example"
-}
-
-func (ResourceGroupExampleResource) IDValidationFunc() pluginsdk.SchemaValidateFunc {
-  return resources.ValidateResourceGroupID
 }
 `}
           </pre>
@@ -632,21 +653,22 @@ function ResourceCRUDSlide() {
           <span className={subtlePill}>Execution Flow</span>
           <ul className={mutedList}>
             <li>
-              • Create: decode config, build ID via{" "}
-              <code>resources.NewResourceGroupID</code>, guard with{" "}
-              <code>ResourceRequiresImport</code>, then create.
+              • Create: decode config, build the ID with{" "}
+              <code>workspaces.NewWorkspaceID</code>, guard with{" "}
+              <code>response.WasNotFound</code>, then call{" "}
+              <code>CreateOrUpdateThenPoll</code>.
             </li>
             <li>
-              • Update: parse ID, decode config, patch only changed fields (tags
-              in this case) using <code>CreateOrUpdate</code>.
+              • Update: start from the fetched payload, toggle deltas (identity,
+              network, tags) and reuse <code>CreateOrUpdateThenPoll</code>.
             </li>
             <li>
-              • Read: parse the ID, fetch with <code>client.Get</code>,
-              normalize fields, then <code>metadata.Encode</code>.
+              • Read: parse the ID, fetch the workspace, normalize fields like
+              location, then push state with <code>d.Set(...)</code>.
             </li>
             <li>
-              • Delete: <code>DeleteThenPoll</code> handles long-running Azure
-              deletes safely.
+              • Delete: honor purge feature flags and block on{" "}
+              <code>future.Poller.PollUntilDone</code>.
             </li>
           </ul>
           <div className="text-xs text-white/70">
@@ -655,123 +677,123 @@ function ResourceCRUDSlide() {
           </div>
         </FadeIn>
         <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
-          <span className={subtlePill}>Create & Read Highlights</span>
+          <span className={subtlePill}>Lifecycle Excerpts</span>
           <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
-            {`func (r ResourceGroupExampleResource) Create() sdk.ResourceFunc {
-  return sdk.ResourceFunc{
-    Timeout: 30 * time.Minute,
-    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
-      client := metadata.Client.Resource.GroupsClient
-      var config ResourceGroupExampleResourceModel
-      if err := metadata.Decode(&config); err != nil {
-        return fmt.Errorf("decoding: %+v", err)
-      }
-      id := resources.NewResourceGroupID(
-        metadata.Client.Account.SubscriptionId,
-        config.Name,
-      )
+            {`func resourceMachineLearningWorkspaceCreate(d *pluginsdk.ResourceData, meta interface{}) error {
+  client := meta.(*clients.Client).MachineLearning.Workspaces
+  subscriptionId := meta.(*clients.Client).Account.SubscriptionId
+  ctx, cancel := timeouts.ForCreate(meta.(*clients.Client).StopContext, d)
+  defer cancel()
 
-      existing, err := client.Get(ctx, id)
-      if err != nil && !response.WasNotFound(existing.HttpResponse) {
-        return fmt.Errorf("checking %s: %+v", id, err)
-      }
-      if !response.WasNotFound(existing.HttpResponse) {
-        return metadata.ResourceRequiresImport(r.ResourceType(), id)
-      }
+  id := workspaces.NewWorkspaceID(subscriptionId, d.Get("resource_group_name").(string), d.Get("name").(string))
 
-      param := resources.Group{
-        Location: pointer.To(location.Normalize(config.Location)),
-        Tags:     pointer.To(config.Tags),
-      }
-      if _, err := client.CreateOrUpdate(ctx, id, param); err != nil {
-        return fmt.Errorf("creating %s: %+v", id, err)
-      }
-
-      metadata.SetID(id)
-      return nil
-    },
+  existing, err := client.Get(ctx, id)
+  if err != nil {
+    if !response.WasNotFound(existing.HttpResponse) {
+      return fmt.Errorf("checking for presence of existing %s: %+v", id, err)
+    }
   }
+  if !response.WasNotFound(existing.HttpResponse) {
+    return tf.ImportAsExistsError("azurerm_machine_learning_workspace", id.ID())
+  }
+
+  expandedIdentity, err := expandMachineLearningWorkspaceIdentity(d.Get("identity").([]interface{}))
+  ...
+  if err := client.CreateOrUpdateThenPoll(ctx, id, workspace); err != nil {
+    return fmt.Errorf("creating %s: %+v", id, err)
+  }
+
+  d.SetId(id.ID())
+  return resourceMachineLearningWorkspaceRead(d, meta)
 }
 
-func (ResourceGroupExampleResource) Read() sdk.ResourceFunc {
-  return sdk.ResourceFunc{
-    Timeout: 5 * time.Minute,
-    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
-      client := metadata.Client.Resource.GroupsClient
-      id, err := resources.ParseResourceGroupID(metadata.ResourceData.Id())
-      if err != nil {
-        return err
-      }
+func resourceMachineLearningWorkspaceRead(d *pluginsdk.ResourceData, meta interface{}) error {
+  client := meta.(*clients.Client).MachineLearning.Workspaces
+  ctx, cancel := timeouts.ForRead(meta.(*clients.Client).StopContext, d)
+  defer cancel()
 
-      resp, err := client.Get(ctx, *id)
-      if err != nil {
-        if response.WasNotFound(resp.HttpResponse) {
-          return metadata.MarkAsGone(id)
-        }
-        return fmt.Errorf("retrieving %s: %+v", id, err)
-      }
-
-      state := ResourceGroupExampleResourceModel{
-        Name: id.ResourceGroupName,
-      }
-      if model := resp.Model; model != nil {
-        state.Location = location.NormalizeNilable(model.Location)
-        state.Tags = pointer.From(model.Tags)
-      }
-      return metadata.Encode(&state)
-    },
+  id, err := workspaces.ParseWorkspaceID(d.Id())
+  if err != nil {
+    return err
   }
-}`}
+
+  resp, err := client.Get(ctx, *id)
+  if err != nil {
+    if response.WasNotFound(resp.HttpResponse) {
+      d.SetId("")
+      return nil
+    }
+    return fmt.Errorf("retrieving %s: %+v", id, err)
+  }
+
+  d.Set("name", id.WorkspaceName)
+  d.Set("resource_group_name", id.ResourceGroupName)
+  ...
+  return tags.FlattenAndSet(d, model.Tags)
+}
+`}
           </pre>
           <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
-            {`func (r ResourceGroupExampleResource) Update() sdk.ResourceFunc {
-  return sdk.ResourceFunc{
-    Timeout: 30 * time.Minute,
-    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
-      client := metadata.Client.Resource.GroupsClient
+            {`func resourceMachineLearningWorkspaceUpdate(d *pluginsdk.ResourceData, meta interface{}) error {
+  client := meta.(*clients.Client).MachineLearning.Workspaces
+  ctx, cancel := timeouts.ForUpdate(meta.(*clients.Client).StopContext, d)
+  defer cancel()
 
-      id, err := resources.ParseResourceGroupID(metadata.ResourceData.Id())
-      if err != nil {
-        return err
-      }
-
-      var config ResourceGroupExampleResourceModel
-      if err := metadata.Decode(&config); err != nil {
-        return fmt.Errorf("decoding: %+v", err)
-      }
-
-      param := resources.Group{
-        Location: pointer.To(location.Normalize(config.Location)),
-        Tags:     pointer.To(config.Tags),
-      }
-      if _, err := client.CreateOrUpdate(ctx, *id, param); err != nil {
-        return fmt.Errorf("updating %s: %+v", *id, err)
-      }
-      return nil
-    },
+  id, err := workspaces.ParseWorkspaceID(d.Id())
+  if err != nil {
+    return err
   }
+
+  existing, err := client.Get(ctx, *id)
+  if err != nil {
+    return fmt.Errorf("retrieving %s: %+v", id, err)
+  }
+
+  payload := existing.Model
+  ...
+  if d.HasChange("serverless_compute") {
+    serverlessCompute := expandMachineLearningWorkspaceServerlessCompute(d.Get("serverless_compute").([]interface{}))
+    ...
+    payload.Properties.ServerlessComputeSettings = serverlessCompute
+  }
+
+  if err := client.CreateOrUpdateThenPoll(ctx, *id, *payload); err != nil {
+    return fmt.Errorf("updating %s: %+v", id, err)
+  }
+
+  d.SetId(id.ID())
+  return resourceMachineLearningWorkspaceRead(d, meta)
 }
 
-func (ResourceGroupExampleResource) Delete() sdk.ResourceFunc {
-  return sdk.ResourceFunc{
-    Timeout: 30 * time.Minute,
-    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
-      client := metadata.Client.Resource.GroupsClient
-      id, err := resources.ParseResourceGroupID(metadata.ResourceData.Id())
-      if err != nil {
-        return err
-      }
-      if err := client.DeleteThenPoll(
-        ctx,
-        *id,
-        resources.DefaultDeleteOperationOptions(),
-      ); err != nil {
-        return fmt.Errorf("deleting %s: %+v", *id, err)
-      }
-      return nil
-    },
+func resourceMachineLearningWorkspaceDelete(d *pluginsdk.ResourceData, meta interface{}) error {
+  client := meta.(*clients.Client).MachineLearning.Workspaces
+  ctx, cancel := timeouts.ForDelete(meta.(*clients.Client).StopContext, d)
+  defer cancel()
+
+  id, err := workspaces.ParseWorkspaceID(d.Id())
+  if err != nil {
+    return fmt.Errorf("parsing Machine Learning Workspace ID %q: %+v", d.Id(), err)
   }
-}`}
+
+  options := workspaces.DefaultDeleteOperationOptions()
+  if meta.(*clients.Client).Features.MachineLearning.PurgeSoftDeletedWorkspaceOnDestroy {
+    options = workspaces.DeleteOperationOptions{
+      ForceToPurge: pointer.To(true),
+    }
+  }
+
+  future, err := client.Delete(ctx, *id, options)
+  if err != nil {
+    return fmt.Errorf("deleting Machine Learning Workspace %q (Resource Group %q): %+v", id.WorkspaceName, id.ResourceGroupName, err)
+  }
+
+  if err := future.Poller.PollUntilDone(ctx); err != nil {
+    return fmt.Errorf("waiting for deletion of Machine Learning Workspace %q (Resource Group %q): %+v", id.WorkspaceName, id.ResourceGroupName, err)
+  }
+
+  return nil
+}
+`}
           </pre>
           <div className="text-xs text-white/70">
             Add a custom poller when the SDK lacks DeleteThenPoll; otherwise
@@ -793,17 +815,19 @@ function ResourceRegistrationSlide() {
         <FadeIn delay={0.2} className={`${surfaceCard} space-y-4`}>
           <span className={subtlePill}>Service Package Registration</span>
           <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
-            {`var _ sdk.TypedServiceRegistration = Registration{}
+            {`// internal/services/machinelearning/registration.go
+var _ sdk.TypedServiceRegistration = Registration{}
 
 type Registration struct{}
 
 func (Registration) Name() string {
-  return "Resource"
+  return "MachineLearning"
 }
 
 func (Registration) Resources() []sdk.Resource {
   return []sdk.Resource{
-    ResourceGroupExampleResource{},
+    resourceMachineLearningWorkspace(),
+    // ...
   }
 }
 
@@ -812,8 +836,9 @@ func (Registration) DataSources() []sdk.DataSource {
 }
 
 func (Registration) WebsiteCategories() []string {
-  return []string{"Resource"}
-}`}
+  return []string{"Machine Learning"}
+}
+`}
           </pre>
           <div className="text-xs text-white/70">
             Keep data sources and website categories aligned with existing
@@ -830,7 +855,7 @@ func (Registration) WebsiteCategories() []string {
             </li>
             <li>
               • Commit acceptance tests (e.g.,
-              <code>resource_group_example_resource_test.go</code>) covering
+              <code>machine_learning_workspace_resource_test.go</code>) covering
               basic, complete, requires-import, and update scenarios.
             </li>
             <li>
@@ -845,8 +870,8 @@ func (Registration) WebsiteCategories() []string {
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-100">
             Run{" "}
             <code>
-              make acctests SERVICE='resource'
-              TESTARGS='-run=TestAccResourceGroupExample_'
+              make acctests SERVICE='machinelearning'
+              TESTARGS='-run=TestAccMachineLearningWorkspace_'
             </code>{" "}
             once registration compiles to prove the flow end-to-end.
           </div>
@@ -854,10 +879,11 @@ func (Registration) WebsiteCategories() []string {
             {`// internal/provider/services.go
 func (p *Provider) typedServiceRegistrations() []sdk.TypedServiceRegistration {
   return []sdk.TypedServiceRegistration{
-    resource.Registration{},
+    machinelearning.Registration{},
     // ...other services
   }
-}`}
+}
+`}
           </pre>
         </FadeIn>
       </div>
