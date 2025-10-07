@@ -28,120 +28,99 @@ export const azurermContribSlides: SlideMeta[] = [
     id: "title",
     transition: "fade",
     speakerNotes: [
-      "Set the tone: this is a contributor-centric walkthrough—less theory, more hands-on workflow.",
-      "Remind the audience AzureRM is HashiCorp’s fastest-moving provider with weekly releases.",
-      "Point to the stats row as proof of impact: contributions land quickly and ship to millions of Terraform runs.",
-      "Preview what is ahead: architecture tour, tooling setup, implementation playbook, PR etiquette, and community support.",
+      "Hey everyone -- thanks for joining this walk-through on contributing to the AzureRM provider. This session is about showing how attainable it is to land a resource, not just talking about it.",
+      "AzureRM ships weekly and powers thousands of production Terraform runs, so even a single contribution has outsized impact. As we go, imagine which service your team needs and how quickly you could ship it.",
+      "By the end you'll have a repeatable playbook: we will tour the architecture, prep your workstation, build a typed resource together, and close with how to keep momentum after this session.",
     ],
   },
   {
     id: "why-contribute",
     transition: "slide",
     speakerNotes: [
-      "Frame the three pillars: velocity, reliability, reputation.",
-      "Mention that Infra teams often wait on features—community PRs can shorten that gap dramatically.",
-      "Call attention to the impact metrics on the right, encouraging attendees to imagine their service going GA faster.",
-      "Transition by noting we’ll now peek under the hood to understand how the provider is structured.",
+      "Before we dive into code, I want to ground us in why contributions matter. When a service gap blocks infrastructure rollout, waiting on the official backlog can stall projects for months.",
+      "By stepping in, you accelerate Azure adoption, harden infrastructure through better schema coverage, and build deep expertise with both Terraform Core and Azure APIs.",
+      "Think of this as a three-part win: you unblock your own workloads, you help the community stay current with Azure releases, and you establish credibility with HashiCorp maintainers for future fast tracks.",
     ],
   },
   {
     id: "provider-architecture",
     transition: "fade",
     speakerNotes: [
-      "Use the diagram to explain flow: Terraform Core -> Provider -> Azure SDK -> Azure APIs.",
-      "Highlight the dual layers: schema/CRUD definitions, and service-specific packages with helpers.",
-      "Explain that idempotence is achieved by flattening Azure responses back into Terraform state.",
-      "Stress the importance of diagnostics—rich errors make Terraform workflows human-friendly.",
-    ],
-  },
-  {
-    id: "repo-overview",
-    transition: "slide",
-    speakerNotes: [
-      "Surface the major directories and what work happens there.",
-      "Encourage bookmarking CONTRIBUTING.md and website docs for quick reference.",
-      "Call out the automation folder: scripts used in CI will also help locally.",
-      "Invite attendees to spend 10 minutes exploring the repo after this session—it shortens ramp-up time.",
+      "Let us look under the hood so the pieces we touch later make sense. Terraform Core calls the provider, the provider uses service packages that wrap Azure SDK clients, and those clients talk to Azure REST APIs.",
+      "Each typed resource bundles schema definitions, helpers that map Terraform state into Azure models, and CRUD methods that keep operations idempotent.",
+      "When the API responds, the provider flattens the payload back into Terraform state, surfaces helpful diagnostics if something goes wrong, and keeps plans honest.",
     ],
   },
   {
     id: "tooling-setup",
     transition: "slide",
     speakerNotes: [
-      "Walk step-by-step through prerequisites; emphasize Azure credentials with sufficient rights.",
-      "Encourage using isolated subscriptions/resource groups to keep Terraform state clean.",
-      "Mention pre-commit hooks keep formatting and linting consistent with maintainers’ expectations.",
-      "Reassure contributors the tooling script handles most installs—less yak shaving.",
+      "Success starts with a clean workstation, so install Go, Node, and the helper binaries from docs/building-the-provider.md before you write a single line.",
+      "Authenticate with the Azure subscription you will use for acceptance tests -- an isolated subscription or resource group keeps cleanup simple and avoids production surprises.",
+      "Run the provided scripts or the devcontainer to pull in pre-commit hooks, and confirm that make test passes to catch environment issues before they derail development.",
     ],
   },
   {
     id: "issue-triage",
     transition: "slide",
     speakerNotes: [
-      "Explain the importance of aligning with maintainers before coding—avoid duplicating work.",
-      "Run through discovery habits: read recent discussions, check if Azure API already supports the feature.",
-      "Call out the decision log section for recording assumptions and API quirks.",
-      "Promote the idea of tiny design notes in the linked issue; reviewers love context.",
+      "With tooling ready, pause before coding and coordinate with maintainers. Scan GitHub issues tagged help-wanted or service labels, and read recent discussions to avoid duplicating work.",
+      "Create or update a decision log in the issue describing the API version, regional or SKU assumptions, and any design questions you have.",
+      "That early context invites fast feedback from maintainers and sets shared expectations so your pull request feels like a planned delivery instead of a surprise.",
     ],
   },
   {
-    id: "implementing",
+    id: "resource-schema",
     transition: "slide",
     speakerNotes: [
-      "Break down the resource template in the code snippet: schema, CRUD, helper usage.",
-      "Encourage reusing existing expand/flatten utilities—less custom code, fewer bugs.",
-      "Point at the callouts on validation, timeouts, and partial state—they’re common review comments.",
-      "Remind everyone to cover importers early; it’s cheaper to build with import support from the start.",
+      "Now we start the hands-on portion with a typed resource example for a resource group. Create internal/services/resource/resource_group_example_resource.go and declare the empty struct that will satisfy sdk.Resource.",
+      "Mirror the Terraform schema in a Go model with tfschema tags, order arguments with identifier pieces first, then location, then required and optional fields.",
+      "Expose Arguments, Attributes, ModelObject, ResourceType, and IDValidationFunc -- once those compile we have the skeleton that Terraform will interrogate for schema and ID rules.",
+    ],
+  },
+  {
+    id: "resource-crud",
+    transition: "slide",
+    speakerNotes: [
+      "With the schema locked in, wire up the lifecycle. In Create, decode the config, build the ID with resources.NewResourceGroupID, check for an existing resource to avoid adoption, and call CreateOrUpdate before setting the ID in state.",
+      "Read parses the ID from state, fetches the resource, normalizes fields like location, and encodes the model back so plans stay accurate. Update mirrors Create but reuses the existing ID and only touches fields that changed.",
+      "Delete leans on DeleteThenPoll to handle Azure long-running operations; when the SDK lacks that helper, drop in a custom poller, but this pattern covers most ARM endpoints.",
+    ],
+  },
+  {
+    id: "resource-registration",
+    transition: "slide",
+    speakerNotes: [
+      "Once the resource compiles, register it with the service package. Implement the Registration struct so it satisfies sdk.TypedServiceRegistration, return the new resource in Resources, and add the registration to internal/provider/services.go.",
+      "Ship acceptance tests alongside the code covering basic, complete, requires-import, and update scenarios, so reviewers see end-to-end proof.",
+      "Finish by updating the website docs, adding a changelog entry under Unreleased, and capturing test evidence; that trifecta keeps releases unblocked and gives maintainers confidence to merge.",
     ],
   },
   {
     id: "testing",
     transition: "slide",
     speakerNotes: [
-      "Stress running go test before acceptance tests—fast feedback on helper logic.",
-      "Explain how to scope acceptance tests narrowly using TESTARGS to save time and cost.",
-      "Mention logging: TF_LOG=DEBUG can help trace Azure API calls when diagnosing issues.",
-      "Reinforce the checklist: tag resources for cleanup, note quotas, handle retries.",
+      "Testing is your safety net. Start with go test ./... to exercise helper logic quickly, and use table-driven tests for expanders and validators to capture edge cases.",
+      "When it is time for acceptance tests, run targeted make acctests commands with a narrow -run filter to keep runtime and cost under control, and tag resources for easy cleanup.",
+      "Remember that TF_ACC should only be set while those acceptance tests run; keeping it unset during unit tests prevents accidental provisioning.",
     ],
   },
   {
     id: "documentation",
     transition: "slide",
     speakerNotes: [
-      "Docs ship with the code; users depend on website docs to understand arguments.",
-      "Describe the doc skeleton shown; encourage using consistent tone and structure.",
-      "Remind them to update examples folder when adding complex features.",
-      "Highlight the changelog callout—maintainers may block PRs missing this entry.",
-    ],
-  },
-  {
-    id: "pull-request",
-    transition: "slide",
-    speakerNotes: [
-      "Use the checklist to walk through PR readiness—tests, docs, changelog, lint.",
-      "Explain that screenshots/log snippets in the PR description build reviewer confidence.",
-      "Point out maintainers value small, focused PRs with clear test instructions.",
-      "Mention review cadence: respond within a couple of business days to keep momentum.",
-    ],
-  },
-  {
-    id: "community",
-    transition: "slide",
-    speakerNotes: [
-      "Encourage joining Slack and community calls—the best place to ask nuanced questions.",
-      "Mention following release notes helps anticipate upcoming work (deprecations, new services).",
-      "Promote knowledge sharing: blog posts or internal docs boost team adoption of Terraform.",
-      "Invite attendees to mentor new contributors once they land their first PR—grow the ecosystem.",
+      "Documentation and changelog entries are non-negotiable because they tell users how to adopt your feature. Populate website/docs/r/<resource>.html.markdown with example usage, argument guidance, defaults, and Azure quirks.",
+      "Run make website before you push so you catch formatting errors locally; treat the doc as the contract that lets someone use the resource without reading the code.",
+      "Update CHANGELOG.md under ## Unreleased with a concise enhancement entry that names the resource, describes the capability, and links to the issue so release notes stay authoritative.",
     ],
   },
   {
     id: "qa",
     transition: "fade",
     speakerNotes: [
-      "Open the floor; prompt with seed questions if the audience hesitates.",
-      "Offer to do a live issue triage or PR review if time permits.",
-      "Point to follow-up resources with QR code/links for self-serve learning.",
-      "Close by celebrating first contributions—they matter to thousands of Terraform users.",
+      "That brings us to Q&A and next steps -- think about the service you want to enable and what is standing between you and opening that pull request.",
+      "We can triage an issue together, walk through test setup, or review a doc outline; nothing is off limits.",
+      "When you are ready, grab an issue, draft your plan, loop in the maintainers, and come back to demo what you shipped -- your future self and the community will thank you.",
     ],
   },
 ];
@@ -231,35 +210,37 @@ function WhyContributeSlide() {
         <div className="grid gap-6 md:grid-cols-2">
           {[
             {
-              title: "Accelerate Azure Adoption",
+              title: "HashiCorp Promise",
               tone: "sky",
               bullets: [
-                "Ship missing GA features weeks faster than official roadmap",
-                "Unlock internal teams blocked on Terraform parity",
+                "Provider charter: keep pace with every Azure GA resource.",
+                "Community PRs help HashiCorp honour that commitment across rapid Azure releases.",
               ],
             },
             {
-              title: "Harden Infrastructure",
+              title: "Accelerate Microsoft & Partners",
               tone: "emerald",
               bullets: [
-                "Fix perpetual diffs by improving schema/state mapping",
-                "Expand regional & SKU support for mission-critical services",
+                "ISE teams unblock feature rollouts without hand-crafted azapi modules.",
+                "Partners and customers adopt your fix the moment the weekly release ships.",
               ],
             },
             {
-              title: "Grow Expertise",
-              tone: "violet",
-              bullets: [
-                "Deepen knowledge of Azure REST + Terraform Plugin SDK",
-                "Earn trust with HashiCorp maintainers for future fast-tracks",
-              ],
-            },
-            {
-              title: "Amplify Community",
+              title: "Grow as an Engineer",
               tone: "amber",
               bullets: [
-                "Document learnings to support other platform teams",
-                "Shape roadmap by opening issues & design discussions",
+                "Learn Go in production—start with GoByExample for bite-sized patterns.",
+                "Feel the rigor of real releases: lint, unit tests, acceptance tests. No shortcuts.",
+                "Deep dive into Azure REST contracts and the Terraform Plugin SDK internals.",
+              ],
+            },
+            {
+              title: "Earn Long-Term Trust",
+              tone: "violet",
+              bullets: [
+                "Consistent contributors get fast-track reviews and merge times.",
+                "Each PR removes hand-rolled azapi hacks from our codebase.",
+                "Your name appears in release notes consumed by thousands of IaC pipelines.",
               ],
             },
           ].map((card, index) => (
@@ -283,16 +264,17 @@ function WhyContributeSlide() {
           <span className={subtlePill}>Impact Snapshot</span>
           <div className="text-sm text-[var(--muted)] space-y-3">
             <p>
-              Every merged PR ships in the next weekly release and is consumed
-              by thousands of pipelines within days.
+              HashiCorp publishes AzureRM weekly—your merged PR propagates to
+              Microsoft engineering and partner tenants almost immediately.
             </p>
             <p>
-              Contributors gain visibility with Azure service teams eager to see
-              their APIs lit up in Terraform.
+              Reliable contributions build a “merge credit score”; reviewers
+              recognise disciplined engineers who never skip tests or lint.
             </p>
             <p className="text-xs text-white/70">
-              Bonus: first-time contributors are often invited to HashiCorp
-              community spotlights—great for your professional profile.
+              Bonus inspiration: GoByExample.com is opened in 4/5 new
+              contributor tabs—drop the link in chat for anyone who wants a
+              refresher.
             </p>
           </div>
         </FadeIn>
@@ -302,143 +284,132 @@ function WhyContributeSlide() {
 }
 
 function ProviderArchitectureSlide() {
+  const flowNodes = [
+    {
+      label: "Terraform Core",
+      tone: "sky",
+      bullet: [
+        "Parses configuration & plans desired vs current state",
+        "Negotiates schema with provider over gRPC",
+      ],
+    },
+    {
+      label: "AzureRM Provider",
+      tone: "emerald",
+      bullet: [
+        "Translates Terraform plan into Azure SDK operations",
+        "Applies schema validations, plan modifiers, diagnostics",
+      ],
+    },
+    {
+      label: "Azure SDK for Go",
+      tone: "violet",
+      bullet: [
+        "Handles authentication, retries, long-running operations",
+        "Returns typed responses for flattening back into state",
+      ],
+    },
+    {
+      label: "Azure Resource Manager",
+      tone: "indigo",
+      bullet: [
+        "Applies infrastructure changes across subscriptions & RGs",
+        "Emits activity logs consumed for diagnostics",
+      ],
+    },
+  ];
+
+  const anatomy = [
+    {
+      title: "Schema Layer",
+      tone: "sky",
+      detail:
+        "Defines arguments, defaults, validations, state upgraders. Lives in resource_*.go",
+    },
+    {
+      title: "Expansion / Flattening",
+      tone: "emerald",
+      detail:
+        "Marshals Terraform schema into Azure requests and back into state objects",
+    },
+    {
+      title: "CRUD Handlers",
+      tone: "violet",
+      detail:
+        "Invoke Azure SDK clients, manage async pollers, enforce timeouts & retries",
+    },
+    {
+      title: "Diagnostics & Feature Flags",
+      tone: "indigo",
+      detail:
+        "Surface actionable errors, warnings, preview toggles (internal/features)",
+    },
+  ];
+
   return (
     <div className="h-full p-8 flex flex-col justify-center">
       <FadeIn className="mb-8 text-center">
         <h2 className={gradientTitle}>Provider Architecture at a Glance</h2>
       </FadeIn>
       <div className="grid gap-6 lg:grid-cols-2">
-        <FadeIn delay={0.2} className={`${surfaceCard} space-y-4`}>
+        <FadeIn delay={0.2} className={`${surfaceCard} space-y-5`}>
           <span className={subtlePill}>Execution Flow</span>
-          <div className="rounded-xl border border-white/10 bg-slate-950/70 p-4 text-sm text-[var(--muted)]">
-            <div className="grid gap-3">
-              {[
-                {
-                  label: "Terraform Core",
-                  detail: "Plans desired state & diff",
-                },
-                {
-                  label: "AzureRM Provider",
-                  detail: "Translates schema into Azure SDK requests",
-                },
-                {
-                  label: "Azure SDK for Go",
-                  detail: "Handles auth, retries, long-running operations",
-                },
-                {
-                  label: "Azure Resource Manager",
-                  detail:
-                    "Applies configuration to subscriptions/resource groups",
-                },
-              ].map((node, index) => (
-                <div key={node.label} className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-full border border-white/15 bg-white/5 text-xs font-semibold text-white/80 flex items-center justify-center">
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70 p-5">
+            <div className="ml-10 flex flex-col gap-6">
+              {flowNodes.map((node, index) => (
+                <div key={node.label} className="relative">
+                  <div
+                    className={`absolute -left-12 flex h-8 w-8 items-center justify-center rounded-full border border-${node.tone}-400/60 bg-${node.tone}-500/20 text-xs font-semibold text-${node.tone}-100`}
+                  >
                     {index + 1}
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <div
+                      className={`text-sm font-semibold text-${node.tone}-100`}
+                    >
                       {node.label}
                     </div>
-                    <div>{node.detail}</div>
+                    <ul className="mt-2 space-y-1.5 text-xs text-[var(--muted)]">
+                      {node.bullet.map((line) => (
+                        <li key={line}>• {line}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+          <div className="text-xs text-white/60">
+            Terraform core and the provider communicate over the Terraform
+            plugin protocol; the provider handles Azure-specific heavy lifting.
+          </div>
         </FadeIn>
         <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
           <span className={subtlePill}>Code Anatomy</span>
-          <ul className={mutedList}>
-            <li>
-              • <strong>Schema</strong>: Defines arguments, computed fields,
-              validations, defaults.
-            </li>
-            <li>
-              • <strong>Expand</strong>/<strong>Flatten</strong>: Convert
-              between Terraform schema structs and Azure API payloads.
-            </li>
-            <li>
-              • <strong>CRUD Handlers</strong>: Create/Read/Update/Delete with
-              Azure SDK, including pollers for async operations.
-            </li>
-            <li>
-              • <strong>Diagnostics</strong>: User-friendly error messages,
-              warnings, partial state handling.
-            </li>
-            <li>
-              • <strong>Feature Flags</strong>: Toggle preview resources via
-              <code>internal/features</code>.
-            </li>
-          </ul>
-          <div className="text-xs text-white/70">
-            Tip: Keep functions small and composable—maintainers prefer reusable
-            helpers over copy/paste.
+          <div className="grid gap-4">
+            {anatomy.map((section, index) => (
+              <div
+                key={section.title}
+                className={`rounded-2xl border border-${section.tone}-400/40 bg-${section.tone}-500/12 px-4 py-3`}
+              >
+                <div
+                  className={`text-sm font-semibold text-${section.tone}-100`}
+                >
+                  {index + 1}. {section.title}
+                </div>
+                <p className="mt-1 text-xs text-[var(--muted)]">
+                  {section.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
+            Tip: Keep helpers reusable—shared packages in{" "}
+            <code>internal/services</code> cut down on copy/paste and make
+            reviews faster.
           </div>
         </FadeIn>
       </div>
-    </div>
-  );
-}
-
-function RepoOverviewSlide() {
-  return (
-    <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
-        <h2 className={gradientTitle}>Repository Field Guide</h2>
-      </FadeIn>
-      <div className="grid gap-6 lg:grid-cols-3">
-        {[
-          {
-            title: "Provider Core",
-            tone: "sky",
-            items: [
-              "<code>provider.go</code> → authentication, Azure client init",
-              "<code>config/</code> → environment & feature flags",
-              "<code>resource_*.go</code> → top-level CRUD entrypoints",
-            ],
-          },
-          {
-            title: "Service Packages",
-            tone: "emerald",
-            items: [
-              "<code>internal/services/network</code> → VNets, firewalls, WAN",
-              "<code>internal/services/containers</code> → AKS, container apps",
-              "<code>internal/services/appplatform</code> → Spring Apps, Functions",
-            ],
-          },
-          {
-            title: "Docs & Automation",
-            tone: "violet",
-            items: [
-              "<code>website/docs/</code> → provider documentation",
-              "<code>.github/workflows/</code> → linting & testing pipelines",
-              "<code>scripts/</code> → tooling for docs, changelog, releases",
-            ],
-          },
-        ].map((column, index) => (
-          <FadeIn
-            key={column.title}
-            delay={0.2 + index * 0.1}
-            className={`${surfaceCard} border-${column.tone}-400/30 bg-${column.tone}-500/10`}
-          >
-            <h3 className={`text-lg font-semibold text-${column.tone}-100`}>
-              {column.title}
-            </h3>
-            <ul className="space-y-2 text-sm text-[var(--muted)] leading-relaxed">
-              {column.items.map((item) => (
-                <li
-                  key={item}
-                  dangerouslySetInnerHTML={{ __html: `• ${item}` }}
-                />
-              ))}
-            </ul>
-          </FadeIn>
-        ))}
-      </div>
-      <FadeIn delay={0.6} className="mt-6 text-center text-xs text-white/70">
-        Pro tip: run <code>go list ./...</code> to explore package boundaries
-        and dependency graph.
-      </FadeIn>
     </div>
   );
 }
@@ -543,60 +514,351 @@ function IssueTriageSlide() {
             respond within a day with guidance or references.
           </div>
         </FadeIn>
+        <FadeIn
+          delay={0.5}
+          className="lg:col-span-2 rounded-3xl border border-white/10 bg-white/5 p-4"
+        >
+          <img
+            src="/images/azurerm-issues.png"
+            alt="Open issues filtered in hashicorp/terraform-provider-azurerm"
+          />
+          <p className="mt-3 text-xs text-white/70">
+            Screenshot: filter by label + help wanted before you claim an issue
+            so the community knows it’s in progress.
+          </p>
+        </FadeIn>
       </div>
     </div>
   );
 }
 
-function ImplementingSlide() {
+function ResourceSchemaSlide() {
   return (
     <div className="h-full p-8 flex flex-col justify-center">
       <FadeIn className="mb-8 text-center">
-        <h2 className={gradientTitle}>Implementation Patterns</h2>
+        <h2 className={gradientTitle}>Define Model & Schema</h2>
+        <p className="mt-3 text-sm text-[var(--muted)] max-w-3xl mx-auto">
+          Typed resources start with a Go struct, a Terraform model, and schema
+          functions that wire configuration into the SDK.
+        </p>
+      </FadeIn>
+      <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+        <FadeIn delay={0.2} className={`${surfaceCard} space-y-3`}>
+          <span className={subtlePill}>File Scaffold</span>
+          <ul className={mutedList}>
+            <li>
+              • Create{" "}
+              <code>
+                internal/services/resource/resource_group_example_resource.go
+              </code>{" "}
+              and declare the empty struct.
+            </li>
+            <li>
+              • Model struct mirrors schema fields using <code>tfschema</code>{" "}
+              tags.
+            </li>
+            <li>
+              • Order arguments: ID parts → <code>location</code> → required →
+              optional.
+            </li>
+            <li>
+              • Use shared helpers (e.g., <code>commonschema.Location()</code>)
+              to match other resources.
+            </li>
+            <li>
+              • Let the compiler drive the todo list—implement each{" "}
+              <code>sdk.Resource</code> method as Go complains about it.
+            </li>
+          </ul>
+        </FadeIn>
+        <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
+          <span className={subtlePill}>Schema & Model</span>
+          <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
+            {`type ResourceGroupExampleResource struct{}
+
+type ResourceGroupExampleResourceModel struct {
+  Name     string            \`tfschema:"name"\`
+  Location string            \`tfschema:"location"\`
+  Tags     map[string]string \`tfschema:"tags"\`
+}
+
+func (ResourceGroupExampleResource) Arguments() map[string]*pluginsdk.Schema {
+  return map[string]*pluginsdk.Schema{
+    "name": {
+      Type:         pluginsdk.TypeString,
+      Required:     true,
+      ValidateFunc: validation.StringIsNotEmpty,
+    },
+    "location": commonschema.Location(),
+    "tags":     commonschema.Tags(),
+  }
+}
+
+func (ResourceGroupExampleResource) Attributes() map[string]*pluginsdk.Schema {
+  return map[string]*pluginsdk.Schema{}
+}
+
+func (ResourceGroupExampleResource) ModelObject() interface{} {
+  return &ResourceGroupExampleResourceModel{}
+}
+
+func (ResourceGroupExampleResource) ResourceType() string {
+  return "azurerm_resource_group_example"
+}
+
+func (ResourceGroupExampleResource) IDValidationFunc() pluginsdk.SchemaValidateFunc {
+  return resources.ValidateResourceGroupID
+}
+`}
+          </pre>
+          <div className="text-xs text-white/70">
+            Run <code>go fmt ./...</code> before committing so CI passes the Go
+            formatting checks.
+          </div>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
+function ResourceCRUDSlide() {
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeIn className="mb-8 text-center">
+        <h2 className={gradientTitle}>Implement CRUD Methods</h2>
       </FadeIn>
       <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-        <FadeIn delay={0.2} className={`${surfaceCard} space-y-4`}>
-          <span className={subtlePill}>Resource Blueprint</span>
+        <FadeIn delay={0.2} className={`${surfaceCard} space-y-3`}>
+          <span className={subtlePill}>Execution Flow</span>
+          <ul className={mutedList}>
+            <li>
+              • Create: decode config, build ID via{" "}
+              <code>resources.NewResourceGroupID</code>, guard with{" "}
+              <code>ResourceRequiresImport</code>, then create.
+            </li>
+            <li>
+              • Update: parse ID, decode config, patch only changed fields (tags
+              in this case) using <code>CreateOrUpdate</code>.
+            </li>
+            <li>
+              • Read: parse the ID, fetch with <code>client.Get</code>,
+              normalize fields, then <code>metadata.Encode</code>.
+            </li>
+            <li>
+              • Delete: <code>DeleteThenPoll</code> handles long-running Azure
+              deletes safely.
+            </li>
+          </ul>
+          <div className="text-xs text-white/70">
+            Return <code>sdk.ResourceFunc</code> with generous timeouts so users
+            can override them in Terraform configuration.
+          </div>
+        </FadeIn>
+        <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
+          <span className={subtlePill}>Create & Read Highlights</span>
           <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
-            {`func resourceFoo() *pluginsdk.Resource {
-  return &pluginsdk.Resource{
-    Schema: schemaFoo(),
-    Create: resourceFooCreate,
-    Read:   resourceFooRead,
-    Update: resourceFooUpdate,
-    Delete: resourceFooDelete,
-    CustomizeDiff: addPlanValidation,
-    Timeouts: &pluginsdk.ResourceTimeout{
-      Create: pluginsdk.DefaultTimeout(1 * time.Hour),
+            {`func (r ResourceGroupExampleResource) Create() sdk.ResourceFunc {
+  return sdk.ResourceFunc{
+    Timeout: 30 * time.Minute,
+    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
+      client := metadata.Client.Resource.GroupsClient
+      var config ResourceGroupExampleResourceModel
+      if err := metadata.Decode(&config); err != nil {
+        return fmt.Errorf("decoding: %+v", err)
+      }
+      id := resources.NewResourceGroupID(
+        metadata.Client.Account.SubscriptionId,
+        config.Name,
+      )
+
+      existing, err := client.Get(ctx, id)
+      if err != nil && !response.WasNotFound(existing.HttpResponse) {
+        return fmt.Errorf("checking %s: %+v", id, err)
+      }
+      if !response.WasNotFound(existing.HttpResponse) {
+        return metadata.ResourceRequiresImport(r.ResourceType(), id)
+      }
+
+      param := resources.Group{
+        Location: pointer.To(location.Normalize(config.Location)),
+        Tags:     pointer.To(config.Tags),
+      }
+      if _, err := client.CreateOrUpdate(ctx, id, param); err != nil {
+        return fmt.Errorf("creating %s: %+v", id, err)
+      }
+
+      metadata.SetID(id)
+      return nil
+    },
+  }
+}
+
+func (ResourceGroupExampleResource) Read() sdk.ResourceFunc {
+  return sdk.ResourceFunc{
+    Timeout: 5 * time.Minute,
+    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
+      client := metadata.Client.Resource.GroupsClient
+      id, err := resources.ParseResourceGroupID(metadata.ResourceData.Id())
+      if err != nil {
+        return err
+      }
+
+      resp, err := client.Get(ctx, *id)
+      if err != nil {
+        if response.WasNotFound(resp.HttpResponse) {
+          return metadata.MarkAsGone(id)
+        }
+        return fmt.Errorf("retrieving %s: %+v", id, err)
+      }
+
+      state := ResourceGroupExampleResourceModel{
+        Name: id.ResourceGroupName,
+      }
+      if model := resp.Model; model != nil {
+        state.Location = location.NormalizeNilable(model.Location)
+        state.Tags = pointer.From(model.Tags)
+      }
+      return metadata.Encode(&state)
+    },
+  }
+}`}
+          </pre>
+          <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
+            {`func (r ResourceGroupExampleResource) Update() sdk.ResourceFunc {
+  return sdk.ResourceFunc{
+    Timeout: 30 * time.Minute,
+    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
+      client := metadata.Client.Resource.GroupsClient
+
+      id, err := resources.ParseResourceGroupID(metadata.ResourceData.Id())
+      if err != nil {
+        return err
+      }
+
+      var config ResourceGroupExampleResourceModel
+      if err := metadata.Decode(&config); err != nil {
+        return fmt.Errorf("decoding: %+v", err)
+      }
+
+      param := resources.Group{
+        Location: pointer.To(location.Normalize(config.Location)),
+        Tags:     pointer.To(config.Tags),
+      }
+      if _, err := client.CreateOrUpdate(ctx, *id, param); err != nil {
+        return fmt.Errorf("updating %s: %+v", *id, err)
+      }
+      return nil
+    },
+  }
+}
+
+func (ResourceGroupExampleResource) Delete() sdk.ResourceFunc {
+  return sdk.ResourceFunc{
+    Timeout: 30 * time.Minute,
+    Func: func(ctx context.Context, metadata sdk.ResourceMetaData) error {
+      client := metadata.Client.Resource.GroupsClient
+      id, err := resources.ParseResourceGroupID(metadata.ResourceData.Id())
+      if err != nil {
+        return err
+      }
+      if err := client.DeleteThenPoll(
+        ctx,
+        *id,
+        resources.DefaultDeleteOperationOptions(),
+      ); err != nil {
+        return fmt.Errorf("deleting %s: %+v", *id, err)
+      }
+      return nil
     },
   }
 }`}
           </pre>
           <div className="text-xs text-white/70">
-            Keep helpers in <code>internal/services/&lt;service&gt;</code>;
-            avoid inline logic for large blocks.
+            Add a custom poller when the SDK lacks DeleteThenPoll; otherwise
+            this pattern covers most ARM services.
           </div>
         </FadeIn>
-        <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
-          <span className={subtlePill}>Reviewer Checklist</span>
+      </div>
+    </div>
+  );
+}
+
+function ResourceRegistrationSlide() {
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeIn className="mb-8 text-center">
+        <h2 className={gradientTitle}>Register the Resource</h2>
+      </FadeIn>
+      <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
+        <FadeIn delay={0.2} className={`${surfaceCard} space-y-4`}>
+          <span className={subtlePill}>Service Package Registration</span>
+          <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
+            {`var _ sdk.TypedServiceRegistration = Registration{}
+
+type Registration struct{}
+
+func (Registration) Name() string {
+  return "Resource"
+}
+
+func (Registration) Resources() []sdk.Resource {
+  return []sdk.Resource{
+    ResourceGroupExampleResource{},
+  }
+}
+
+func (Registration) DataSources() []sdk.DataSource {
+  return []sdk.DataSource{}
+}
+
+func (Registration) WebsiteCategories() []string {
+  return []string{"Resource"}
+}`}
+          </pre>
+          <div className="text-xs text-white/70">
+            Keep data sources and website categories aligned with existing
+            entries so the docs build picks them up.
+          </div>
+        </FadeIn>
+        <FadeIn delay={0.35} className={`${surfaceCard} space-y-3`}>
+          <span className={subtlePill}>Provider Wiring & PR Exit</span>
           <ul className={mutedList}>
             <li>
-              • Validation: lengths, casing, allowed values, mutual exclusivity.
-            </li>
-            <li>• Timeout + retry for long-running operations.</li>
-            <li>
-              • Importer: implement{" "}
-              <code>Importer: pluginsdk.ImporterValidatingResourceId()</code>.
+              • Ensure the registration is listed in{" "}
+              <code>internal/provider/services.go</code> so the provider loads
+              it.
             </li>
             <li>
-              • Partial state: guard against failures after create but before
-              read.
+              • Commit acceptance tests (e.g.,
+              <code>resource_group_example_resource_test.go</code>) covering
+              basic, complete, requires-import, and update scenarios.
             </li>
             <li>
-              • Expand/flatten parity: ensure set + read path produce identical
-              models.
+              • Update <code>website/docs/r/</code> with the new resource doc
+              and add a changelog entry.
+            </li>
+            <li>
+              • PR checklist: acctest output, API version, docs + changelog
+              linked in the description.
             </li>
           </ul>
+          <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-100">
+            Run{" "}
+            <code>
+              make acctests SERVICE='resource'
+              TESTARGS='-run=TestAccResourceGroupExample_'
+            </code>{" "}
+            once registration compiles to prove the flow end-to-end.
+          </div>
+          <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
+            {`// internal/provider/services.go
+func (p *Provider) typedServiceRegistrations() []sdk.TypedServiceRegistration {
+  return []sdk.TypedServiceRegistration{
+    resource.Registration{},
+    // ...other services
+  }
+}`}
+          </pre>
         </FadeIn>
       </div>
     </div>
@@ -657,141 +919,53 @@ function DocumentationSlide() {
   return (
     <div className="h-full p-8 flex flex-col justify-center">
       <FadeIn className="mb-8 text-center">
-        <h2 className={gradientTitle}>Documentation & Changelog</h2>
+        <h2 className={gradientTitle}>Docs & Changelog Matter</h2>
+        <p className="mt-3 text-sm text-[var(--muted)] max-w-3xl mx-auto">
+          Every resource ships with docs and a changelog note—without them users
+          can’t discover the feature and maintainers can’t publish a release.
+        </p>
       </FadeIn>
-      <div className={`${surfaceCard} space-y-5`}>
-        <div className="grid gap-6 md:grid-cols-2">
-          <FadeIn delay={0.2} className="space-y-3">
-            <span className={subtlePill}>Docs Template</span>
-            <div className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-xs text-[var(--muted)]">
-              {`---
-subcategory: ""
-layout: azurerm
-page_title: "azurerm_resource"
-description: "Manages ..."
----
-
-# Example Usage
-resource "azurerm_resource" "example" {
-  name = "example"
-}
-
-# Argument Reference
-- \`name\` (Required) ...
-
-# Attributes Reference
-- \`id\` - ...
-`}
-            </div>
-          </FadeIn>
-          <FadeIn delay={0.35} className="space-y-3">
-            <span className={subtlePill}>Changelog Etiquette</span>
-            <ul className={mutedList}>
-              <li>
-                • Append under <code>## Unreleased</code> → Enhancement or Bug
-                Fix.
-              </li>
-              <li>• Include resource/data source names and issue numbers.</li>
-              <li>• Keep entry concise; details belong in PR description.</li>
-            </ul>
-            <div className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-100">
-              Missing docs or changelog is the #1 reason PRs get
-              blocked—double-check before requesting review.
-            </div>
-          </FadeIn>
-        </div>
-        <div className="text-xs text-white/70">
-          Run <code>make docs</code> and <code>make website</code> locally to
-          confirm formatting before pushing updates.
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PullRequestSlide() {
-  return (
-    <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
-        <h2 className={gradientTitle}>Pull Request Checklist</h2>
-      </FadeIn>
-      <div className="grid gap-6 lg:grid-cols-[1fr,0.8fr]">
-        <FadeIn delay={0.2} className={`${surfaceCard} space-y-3`}>
+      <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
+        <FadeIn delay={0.2} className={`${surfaceCard} space-y-4`}>
+          <span className={subtlePill}>Ship the Docs</span>
           <ul className={mutedList}>
             <li>
-              ✅ Tests passing: <code>make fmt lint test</code> and targeted
-              acceptance runs.
-            </li>
-            <li>✅ Docs updated + changelog entry added.</li>
-            <li>
-              ✅ PR description includes: issue link, Azure API version, test
-              evidence, breaking change call-outs.
+              • Add <code>website/docs/r/&lt;resource&gt;.html.markdown</code>{" "}
+              with example usage, arguments, and attributes.
             </li>
             <li>
-              ✅ DCO sign-off if your org requires it (
-              <code>git commit -s</code>).
+              • Mention defaults, timeouts, and any Azure quirks users must know
+              before deploying.
             </li>
-            <li>✅ Mention feature flag if resource is preview-only.</li>
+            <li>
+              • Build locally with <code>make website</code> to catch formatting
+              issues before review.
+            </li>
           </ul>
+          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
+            Documentation is the contract users read—if it’s missing, the
+            feature might as well not exist.
+          </div>
         </FadeIn>
-        <FadeIn delay={0.35} className={`${surfaceCard} space-y-3`}>
-          <span className={subtlePill}>Reviewer Expectations</span>
-          <ul className={mutedList}>
-            <li>• Small, focused PRs merge faster than mega-features.</li>
-            <li>
-              • Be responsive; reviewers appreciate follow-up within 2 business
-              days.
-            </li>
-            <li>
-              • Ready to iterate—maintainers may ask for additional tests or
-              schema tweaks.
-            </li>
-            <li>
-              • Celebrate! Share the release note once merged to highlight
-              impact.
-            </li>
-          </ul>
-        </FadeIn>
-      </div>
-    </div>
-  );
-}
-
-function CommunitySlide() {
-  return (
-    <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
-        <h2 className={gradientTitle}>Stay Connected</h2>
-      </FadeIn>
-      <div className="grid gap-6 md:grid-cols-2">
-        <FadeIn delay={0.2} className={`${surfaceCard} space-y-3`}>
-          <span className={subtlePill}>Support Channels</span>
+        <FadeIn delay={0.35} className={`${surfaceCard} space-y-4`}>
+          <span className={subtlePill}>Log the Change</span>
           <ul className={mutedList}>
             <li>
-              • HashiCorp Community Forum → tag with{" "}
-              <code>terraform-provider-azurerm</code>.
+              • Update <code>CHANGELOG.md</code> under{" "}
+              <code>## Unreleased</code> in the Enhancements section.
             </li>
             <li>
-              • Slack → #terraform-providers, #terraform-azurerm for async help.
+              • Use concise language: include resource name, new capability, and
+              issue link.
             </li>
             <li>
-              • Office hours → regular maintainer Q&A sessions (check repo
-              README).
+              • Releases are built from this file—missing entries delay delivery
+              to Terraform users.
             </li>
-            <li>• Azure REST API changelog → track breaking changes early.</li>
           </ul>
-        </FadeIn>
-        <FadeIn delay={0.35} className={`${surfaceCard} space-y-3`}>
-          <span className={subtlePill}>Give Back</span>
-          <ul className={mutedList}>
-            <li>• Share your setup via blog posts or internal tech talks.</li>
-            <li>• Pair with new contributors to review first PRs.</li>
-            <li>• Keep an eye on release notes to celebrate shipped work.</li>
-            <li>• Propose features via discussions to influence roadmap.</li>
-          </ul>
-          <div className="text-xs text-white/70">
-            The provider thrives when contributors mentor others—your experience
-            today becomes someone else’s fast track tomorrow.
+          <div className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-100">
+            Maintainers routinely pause reviews until docs + changelog land—save
+            a back-and-forth by doing it up front.
           </div>
         </FadeIn>
       </div>
@@ -813,11 +987,10 @@ function QASlide() {
             Q&A / Next Steps
           </h2>
           <p className="text-lg text-[var(--muted)]">
-            Pick an issue, draft your plan, and let the maintainers help you
-            ship it. What’s standing between you and your first PR?
+            Pick an issue, draft your plan, and start coding!
           </p>
         </div>
-        <div className="grid gap-5 md:grid-cols-2 text-left text-sm text-[var(--muted)]">
+        <div className="grid gap-5 md:grid-cols-1 text-left text-sm text-[var(--muted)]">
           <div className="surface rounded-2xl border border-white/10 bg-white/5 p-5">
             <h3 className="text-sm font-semibold text-white/80 mb-2">
               Conversation Starters
@@ -828,20 +1001,6 @@ function QASlide() {
               <li>• Curious about Azure API versioning best practices?</li>
             </ul>
           </div>
-          <div className="surface rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="text-sm font-semibold text-white/80 mb-2">
-              Takeaway Links
-            </h3>
-            <ul className="space-y-1.5">
-              <li>• CONTRIBUTING.md & issue templates</li>
-              <li>• Example PRs with great test evidence</li>
-              <li>• Release notes & roadmap discussions</li>
-            </ul>
-          </div>
-        </div>
-        <div className="text-xs text-white/60">
-          Stay in touch: GitHub @hashicorp/terraform-provider-azurerm · Slack
-          #terraform-azurerm · Office hours calendar in README
         </div>
       </motion.div>
     </div>
@@ -852,14 +1011,13 @@ const slideMap: Record<string, React.ReactNode> = {
   title: <TitleSlide />,
   "why-contribute": <WhyContributeSlide />,
   "provider-architecture": <ProviderArchitectureSlide />,
-  "repo-overview": <RepoOverviewSlide />,
   "tooling-setup": <ToolingSetupSlide />,
   "issue-triage": <IssueTriageSlide />,
-  implementing: <ImplementingSlide />,
+  "resource-schema": <ResourceSchemaSlide />,
+  "resource-crud": <ResourceCRUDSlide />,
+  "resource-registration": <ResourceRegistrationSlide />,
   testing: <TestingSlide />,
   documentation: <DocumentationSlide />,
-  "pull-request": <PullRequestSlide />,
-  community: <CommunitySlide />,
   qa: <QASlide />,
 };
 
