@@ -1,9 +1,6 @@
 import ConceptToCockpitDeck, {
   conceptToCockpitSlides,
 } from "./concept-to-cockpit/ConceptToCockpitDeck";
-import EngagementLaunchpadDeck, {
-  engagementLaunchpadSlides,
-} from "./engagement-launchpad/EngagementLaunchpadDeck";
 import MedicineDeliveryDeck, {
   medicineDeliverySlides,
 } from "./medicine-delivery/MedicineDeliveryDeck";
@@ -16,18 +13,21 @@ import RealtimeVoiceDeck, {
 import TrafficManagerDeck, {
   trafficManagerSlides,
 } from "./traffic-manager/TrafficManagerDeck";
+import AzureRMContribDeck, {
+  azurermContribSlides,
+} from "./terraform-provider-azurerm/AzureRMContribDeck";
 import type { PresentationEntry } from "../types";
 
 const presentations: PresentationEntry[] = [
   {
-    id: "engagement-launchpad",
-    title: "Engagement Launchpad",
-    subtitle: "Signal-first lifecycle activation playbook",
+    id: "azurerm-contribution",
+    title: "Contributing to Terraform AzureRM",
+    subtitle: "Hands-on guide for adding features to hashicorp/terraform-provider-azurerm",
     author: "Ben Sinclair",
     state: "WIP",
-    subjects: ["Present"],
-    slides: engagementLaunchpadSlides,
-    component: EngagementLaunchpadDeck,
+    subjects: ["Infrastructure", "Azure", "Terraform"],
+    slides: azurermContribSlides,
+    component: AzureRMContribDeck,
   },
   {
     id: "concept-to-cockpit",
