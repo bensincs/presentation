@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  Children,
-} from "react";
+import { useEffect, useMemo, useRef, useState, Children } from "react";
 import type { PropsWithChildren } from "react";
 import PresentationControls from "./PresentationControls";
 
@@ -21,6 +14,7 @@ type Props = PropsWithChildren<{
   laserEnabled?: boolean;
   laserPosition?: { x: number; y: number } | null;
   onLaserMove?: (position: { x: number; y: number } | null) => void;
+  onToggleLaser?: () => void;
 }>;
 
 export default function Deck({
@@ -36,15 +30,13 @@ export default function Deck({
   laserEnabled = false,
   laserPosition,
   onLaserMove,
+  onToggleLaser,
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const [stageRect, setStageRect] = useState<{
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  } | null>(null);
+  const [viewport, setViewport] = useState(() => ({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  }));
 
   useEffect(() => {
     hostRef.current?.focus();
@@ -61,40 +53,20 @@ export default function Deck({
     if (event.key === "Escape") window.location.href = "/";
   };
 
-  const updateStageRect = useCallback(() => {
-    if (!stageRef.current) {
-      setStageRect(null);
-      return;
-    }
-    const rect = stageRef.current.getBoundingClientRect();
-    setStageRect({
-      left: rect.left,
-      top: rect.top,
-      width: rect.width || 1,
-      height: rect.height || 1,
-    });
-  }, []);
-
-  useEffect(() => {
-    updateStageRect();
-  }, [updateStageRect, index]);
-
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
-    updateStageRect();
-    window.addEventListener("resize", updateStageRect);
-    let observer: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== "undefined" && stageRef.current) {
-      observer = new ResizeObserver(() => updateStageRect());
-      observer.observe(stageRef.current);
-    }
-    return () => {
-      window.removeEventListener("resize", updateStageRect);
-      observer?.disconnect();
+    const handleResize = () => {
+      setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     };
-  }, [updateStageRect]);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (!laserEnabled) {
@@ -106,22 +78,19 @@ export default function Deck({
     if (!laserEnabled) {
       return;
     }
-    const rect =
-      stageRef.current?.getBoundingClientRect() ??
-      (stageRect
-        ? {
-            left: stageRect.left,
-            top: stageRect.top,
-            width: stageRect.width,
-            height: stageRect.height,
-          }
-        : null);
-    if (!rect || !rect.width || !rect.height) {
+    const width =
+      viewport.width || (typeof window !== "undefined" ? window.innerWidth : 0);
+    const height =
+      viewport.height ||
+      (typeof window !== "undefined" ? window.innerHeight : 0);
+    if (!width || !height) {
       return;
     }
+    const centerX = width / 2;
+    const centerY = height / 2;
     const next = {
-      x: Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1),
-      y: Math.min(Math.max((event.clientY - rect.top) / rect.height, 0), 1),
+      x: Math.min(Math.max((event.clientX - centerX) / centerX, -1), 1),
+      y: Math.min(Math.max((event.clientY - centerY) / centerY, -1), 1),
     };
     onLaserMove?.(next);
   };
@@ -134,16 +103,27 @@ export default function Deck({
   };
 
   const pixelPosition = useMemo(() => {
-    if (!laserPosition || !stageRect) {
+    if (!laserPosition) {
       return null;
     }
+    const width =
+      viewport.width || (typeof window !== "undefined" ? window.innerWidth : 0);
+    const height =
+      viewport.height ||
+      (typeof window !== "undefined" ? window.innerHeight : 0);
+    if (!width || !height) {
+      return null;
+    }
+    const centerX = width / 2;
+    const centerY = height / 2;
     return {
-      x: stageRect.left + laserPosition.x * stageRect.width,
-      y: stageRect.top + laserPosition.y * stageRect.height,
+      x: centerX + laserPosition.x * centerX,
+      y: centerY + laserPosition.y * centerY,
     };
-  }, [laserPosition, stageRect]);
+  }, [laserPosition, viewport.height, viewport.width]);
 
   const hideCursor = laserEnabled && pixelPosition;
+  const pointerLabel = laserEnabled ? "#1" : "Off";
 
   return (
     <section
@@ -180,16 +160,54 @@ export default function Deck({
       ) : null}
       <div className="w-full h-full">
         {/* Stage area */}
-        <div ref={stageRef} className="mx-auto max-w-[1100px] h-full">
+        <div className="mx-auto max-w-[1100px] h-full">
           {Children.toArray(children)[index]}
         </div>
       </div>
 
-      {/* Progress (top-right subtle) */}
-      <div className="fixed top-4 right-4 p-2 text-xs text-[var(--muted)] select-none">
-        <span className="font-semibold text-[var(--fg)]">{index + 1}</span>
-        <span className="mx-1">/</span>
-        <span>{total + 1}</span>
+      {/* Progress + controls (top-right) */}
+      <div className="fixed top-4 right-4 flex items-center gap-2 rounded-md bg-black/30 px-3 py-2 text-xs text-white/80 shadow-lg shadow-black/30 backdrop-blur">
+        <div className="select-none">
+          <span className="font-semibold text-white">{index + 1}</span>
+          <span className="mx-1 text-white/50">/</span>
+          <span>{total + 1}</span>
+        </div>
+        {onToggleLaser ? (
+          <button
+            type="button"
+            onClick={onToggleLaser}
+            className={`inline-flex items-center gap-1 rounded px-2 py-1 font-semibold transition ${
+              laserEnabled
+                ? "bg-rose-500/90 text-white shadow-inner shadow-rose-400/70"
+                : "border border-white/20 bg-black/10 text-white/80 hover:border-white/40 hover:text-white"
+            }`}
+            aria-pressed={laserEnabled}
+            aria-label="Toggle laser pointer"
+          >
+            <span className="text-[10px] uppercase tracking-wide">
+              Pointer
+            </span>
+            <span className="text-[11px]">{pointerLabel}</span>
+          </button>
+        ) : null}
+        {onToggleSpeakerOverlay ? (
+          <button
+            type="button"
+            onClick={onToggleSpeakerOverlay}
+            className={`inline-flex items-center gap-1 rounded px-2 py-1 font-semibold transition ${
+              showSpeakerOverlay
+                ? "bg-white/20 text-white shadow-inner shadow-white/30"
+                : "border border-white/20 bg-black/10 text-white/80 hover:border-white/40 hover:text-white"
+            }`}
+            aria-pressed={showSpeakerOverlay}
+            aria-label="Toggle speaker notes"
+          >
+            <span className="text-[10px] uppercase tracking-wide">Notes</span>
+            <span className="text-[11px]">
+              {showSpeakerOverlay ? "On" : "Off"}
+            </span>
+          </button>
+        ) : null}
       </div>
       <button
         type="button"
@@ -216,8 +234,6 @@ export default function Deck({
         total={total}
         onPrev={onPrev}
         onNext={onNext}
-        showSpeakerOverlay={showSpeakerOverlay}
-        onToggleSpeakerOverlay={onToggleSpeakerOverlay}
       />
     </section>
   );

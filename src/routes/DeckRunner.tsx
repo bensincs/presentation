@@ -42,6 +42,9 @@ export default function DeckRunner() {
   const [laserEnabled, setLaserEnabled] = useState(false);
   const { position: syncedLaserPosition, setPosition: setSyncedLaserPosition } =
     useSyncedLaserPosition({ deckId: entry?.id });
+  const toggleLaser = useCallback(() => {
+    setLaserEnabled((prev) => !prev);
+  }, []);
 
   const activeSlideMeta = useMemo<SlideMeta | undefined>(() => {
     if (!entry) {
@@ -196,7 +199,7 @@ export default function DeckRunner() {
 
       if (lower === "p") {
         prevent();
-        setLaserEnabled((prev) => !prev);
+        toggleLaser();
         return;
       }
     },
@@ -207,7 +210,7 @@ export default function DeckRunner() {
       showSpeakerOverlay,
       toggleSpeakerOverlay,
       toggleSpeakerFullscreen,
-      setLaserEnabled,
+      toggleLaser,
     ]
   );
 
@@ -287,6 +290,7 @@ export default function DeckRunner() {
         laserEnabled={laserEnabled}
         laserPosition={syncedLaserPosition}
         onLaserMove={handleLaserMove}
+        onToggleLaser={toggleLaser}
       >
         <Slide>
           <div className="mx-auto max-w-5xl px-4 py-8">

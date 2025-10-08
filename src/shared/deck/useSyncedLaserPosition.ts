@@ -23,8 +23,8 @@ export default function useSyncedLaserPosition({ deckId }: Params) {
       return null;
     }
     return {
-      x: Math.min(Math.max(value.x, 0), 1),
-      y: Math.min(Math.max(value.y, 0), 1),
+      x: Math.min(Math.max(value.x, -1), 1),
+      y: Math.min(Math.max(value.y, -1), 1),
     };
   }, []);
 
@@ -87,4 +87,3 @@ export default function useSyncedLaserPosition({ deckId }: Params) {
     setPosition,
   };
 }
-
