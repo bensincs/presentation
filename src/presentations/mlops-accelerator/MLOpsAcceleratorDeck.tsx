@@ -198,12 +198,6 @@ const FadeInUp: React.FC<MotionBlockProps> = ({
 );
 
 function TitleSlide() {
-  const stats = [
-    { label: "Idea → MVP", value: "6 hours", tone: "amber" },
-    { label: "Automation authored", value: "2,400+ LOC", tone: "rose" },
-    { label: "Manual edits", value: "< 12 commits", tone: "indigo" },
-  ];
-
   return (
     <div className="h-full flex flex-col justify-center items-center text-center p-8">
       <motion.h1
@@ -222,12 +216,7 @@ function TitleSlide() {
         take models from experiment to production-ready Azure ML pipelines.
       </FadeInUp>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        {[
-          "Hyper Velocity Engineering",
-          "Azure ML",
-          "Dev Containers",
-          "CI/CD",
-        ].map((tag, index) => (
+        {["ML Ops", "Azure ML", "Dev Containers", "CI/CD"].map((tag, index) => (
           <motion.span
             key={tag}
             className="rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/80"
@@ -247,20 +236,6 @@ function TitleSlide() {
         automation that provisions workspaces on-demand, and CI/CD that keeps
         pipelines aligned with production-ready infrastructure.
       </FadeInUp>
-      <div className="mt-10 grid gap-4 text-left sm:grid-cols-3">
-        {stats.map((stat, index) => (
-          <ScalePop
-            key={stat.label}
-            delay={0.65 + index * 0.08}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-[var(--muted)]"
-          >
-            <div className={`text-${stat.tone}-100 text-xs uppercase`}>
-              {stat.label}
-            </div>
-            <div className="text-2xl font-bold text-white">{stat.value}</div>
-          </ScalePop>
-        ))}
-      </div>
     </div>
   );
 }
