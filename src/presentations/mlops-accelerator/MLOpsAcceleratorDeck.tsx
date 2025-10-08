@@ -131,29 +131,136 @@ const FadeIn: React.FC<FadeInProps> = ({ delay = 0, className, children }) => (
   </motion.div>
 );
 
+type MotionBlockProps = {
+  delay?: number;
+  className?: string;
+  children?: React.ReactNode;
+};
+
+const SlideInLeft: React.FC<MotionBlockProps> = ({
+  delay = 0,
+  className,
+  children,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, x: -48 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.6, ease: "easeOut", delay }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+const SlideInRight: React.FC<MotionBlockProps> = ({
+  delay = 0,
+  className,
+  children,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, x: 48 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.6, ease: "easeOut", delay }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+const ScalePop: React.FC<MotionBlockProps> = ({
+  delay = 0,
+  className,
+  children,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.88, rotate: -2 }}
+    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+    transition={{ duration: 0.5, ease: "backOut", delay }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+const FadeInUp: React.FC<MotionBlockProps> = ({
+  delay = 0,
+  className,
+  children,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 32 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.55, ease: "easeOut", delay }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
 function TitleSlide() {
+  const stats = [
+    { label: "Idea → MVP", value: "6 hours", tone: "amber" },
+    { label: "Automation authored", value: "2,400+ LOC", tone: "rose" },
+    { label: "Manual edits", value: "< 12 commits", tone: "indigo" },
+  ];
+
   return (
     <div className="h-full flex flex-col justify-center items-center text-center p-8">
       <motion.h1
         className="text-[clamp(44px,8vw,96px)] font-extrabold bg-gradient-to-r from-amber-400 via-rose-400 to-indigo-500 bg-clip-text text-transparent"
-        initial={{ opacity: 0, scale: 0.88 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.7 }}
+        initial={{ opacity: 0, scale: 0.88, y: -24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
       >
         MLOps Accelerator
       </motion.h1>
-      <FadeIn delay={0.3} className="text-2xl text-[var(--muted)] max-w-3xl">
+      <FadeInUp
+        delay={0.25}
+        className="text-2xl text-[var(--muted)] max-w-3xl tracking-tight"
+      >
         Reproducible development environments and guardrailed workflows that
         take models from experiment to production-ready Azure ML pipelines.
-      </FadeIn>
-      <FadeIn
-        delay={0.45}
-        className="mt-12 max-w-3xl text-sm text-[var(--muted)] leading-relaxed"
+      </FadeInUp>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        {[
+          "Hyper Velocity Engineering",
+          "Azure ML",
+          "Dev Containers",
+          "CI/CD",
+        ].map((tag, index) => (
+          <motion.span
+            key={tag}
+            className="rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/80"
+            initial={{ opacity: 0, scale: 0.6, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.35 + index * 0.08, duration: 0.4 }}
+          >
+            {tag}
+          </motion.span>
+        ))}
+      </div>
+      <FadeInUp
+        delay={0.55}
+        className="mt-10 max-w-3xl text-sm text-[var(--muted)] leading-relaxed"
       >
         Build once, run anywhere: Conda specs synchronized with Dev Containers,
         automation that provisions workspaces on-demand, and CI/CD that keeps
         pipelines aligned with production-ready infrastructure.
-      </FadeIn>
+      </FadeInUp>
+      <div className="mt-10 grid gap-4 text-left sm:grid-cols-3">
+        {stats.map((stat, index) => (
+          <ScalePop
+            key={stat.label}
+            delay={0.65 + index * 0.08}
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-[var(--muted)]"
+          >
+            <div className={`text-${stat.tone}-100 text-xs uppercase`}>
+              {stat.label}
+            </div>
+            <div className="text-2xl font-bold text-white">{stat.value}</div>
+          </ScalePop>
+        ))}
+      </div>
     </div>
   );
 }
@@ -161,9 +268,9 @@ function TitleSlide() {
 function DevExperienceSlide() {
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>Developer Experience</h2>
-      </FadeIn>
+      </FadeInUp>
       <div className="grid gap-6 lg:grid-cols-3">
         {[
           {
@@ -189,151 +296,169 @@ function DevExperienceSlide() {
               "Handles the VPN gateway connection into the private virtual network.",
             ],
           },
-        ].map((card, index) => (
-          <FadeIn
-            key={card.title}
-            delay={0.2 + index * 0.12}
-            className={`${surface} space-y-3`}
-          >
-            <span className="text-lg font-semibold text-white">
-              {card.title}
-            </span>
-            <ul className={`${mutedText} space-y-2`}>
-              {card.points.map((point) => (
-                <li key={point}>• {point}</li>
-              ))}
-            </ul>
-          </FadeIn>
-        ))}
+        ].map((card, index) =>
+          index % 2 === 0 ? (
+            <SlideInLeft
+              key={card.title}
+              delay={0.2 + index * 0.12}
+              className={`${surface} space-y-3`}
+            >
+              <span className="text-lg font-semibold text-white">
+                {card.title}
+              </span>
+              <ul className={`${mutedText} space-y-2`}>
+                {card.points.map((point) => (
+                  <li key={point}>• {point}</li>
+                ))}
+              </ul>
+            </SlideInLeft>
+          ) : (
+            <SlideInRight
+              key={card.title}
+              delay={0.2 + index * 0.12}
+              className={`${surface} space-y-3`}
+            >
+              <span className="text-lg font-semibold text-white">
+                {card.title}
+              </span>
+              <ul className={`${mutedText} space-y-2`}>
+                {card.points.map((point) => (
+                  <li key={point}>• {point}</li>
+                ))}
+              </ul>
+            </SlideInRight>
+          )
+        )}
       </div>
-      <FadeIn delay={0.6} className="mt-8 text-center text-xs text-white/70">
+      <FadeInUp delay={0.6} className="mt-8 text-center text-xs text-white/70">
         Clone the repo, run the Makefile, open the container—onboarding down to
         minutes.
-      </FadeIn>
+      </FadeInUp>
     </div>
   );
 }
 
 function InfrastructureOverviewSlide() {
+  const cards = [
+    {
+      icon: "🛡️",
+      title: "Base Infrastructure",
+      description: "Locked-down landing zone that every workspace inherits.",
+      bullets: [
+        "Hub VNet with segmented data, compute, and management subnets.",
+        "VPN gateway + Azure Firewall with private DNS zones.",
+        "Private endpoints for storage, Key Vault, and container registry.",
+      ],
+    },
+    {
+      icon: "🧪",
+      title: "Workspace Infrastructure",
+      description:
+        "Train, Test, Serve environments deployed three times for lifecycle control.",
+      bullets: [
+        "Azure ML workspaces with linked storage, key vault, and app insights.",
+        "Private CPU & GPU compute clusters managed centrally.",
+        "Network-isolated datastores, feature stores, and endpoint deployments.",
+      ],
+    },
+  ];
+
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-10 text-center">
+      <FadeInUp className="mb-10 text-center">
         <h2 className={gradientTitle}>Secure Landing Zone & Workspaces</h2>
-      </FadeIn>
+      </FadeInUp>
       <div className="grid gap-6 lg:grid-cols-2">
-        <FadeIn delay={0.2} className={`${surface} space-y-4`}>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🛡️</span>
-            <div>
-              <span className={pill}>Base Infrastructure</span>
-              <p className="mt-2 text-sm text-white/80">
-                Locked-down landing zone that every workspace inherits.
-              </p>
-            </div>
-          </div>
-          <div className="grid gap-3 [grid-auto-rows:1fr]">
-            <div className="rounded-xl border border-white/10 bg-white/10 p-4 flex flex-col">
-              <div className="text-xs uppercase text-white/70 tracking-wide">
-                Resources
+        {cards.map((card, index) => (
+          <ScalePop
+            key={card.title}
+            delay={0.18 + index * 0.12}
+            className={`${surface} space-y-4`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{card.icon}</span>
+              <div>
+                <span className={pill}>{card.title}</span>
+                <p className="mt-2 text-sm text-white/80">{card.description}</p>
               </div>
-              <ul className={`${mutedText} mt-2 space-y-2`}>
-                <li>
-                  • Hub VNet with segmented data, compute, and management
-                  subnets.
-                </li>
-                <li>• VPN gateway + Azure Firewall with private DNS zones.</li>
-                <li>
-                  • Private endpoints for storage, Key Vault, and container
-                  registry.
-                </li>
-              </ul>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/10 p-4 flex flex-col">
-              <div className="text-xs uppercase text-white/70 tracking-wide">
-                Purpose
-              </div>
-              <p className={`${mutedText} mt-2 leading-relaxed flex-1`}>
-                Provides the security envelope—network isolation, identity
-                guardrails, and shared services that every data science workload
-                relies on.
-              </p>
-            </div>
-          </div>
-        </FadeIn>
-        <FadeIn delay={0.35} className={`${surface} space-y-4`}>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🧪</span>
-            <div>
-              <span className={pill}>Workspace Infrastructure</span>
-              <p className="mt-2 text-sm text-white/80">
-                Train, Test, Serve environments deployed three times for
-                lifecycle control.
-              </p>
-            </div>
-          </div>
-          <div className="grid gap-3 [grid-auto-rows:1fr]">
-            <div className="rounded-xl border border-white/10 bg-white/10 p-4 flex flex-col">
-              <div className="text-xs uppercase text-white/70 tracking-wide">
-                Resources
-              </div>
-              <ul className={`${mutedText} mt-2 space-y-2`}>
-                <li>
-                  • Azure ML workspace with linked storage, key vault, and app
-                  insights.
-                </li>
-                <li>• Private CPU & GPU compute clusters managed centrally.</li>
-                <li>
-                  • Network-isolated datastores, feature stores, and endpoint
-                  deployments.
-                </li>
-              </ul>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/10 p-4 flex flex-col">
-              <div className="text-xs uppercase text-white/70 tracking-wide">
-                Purpose
-              </div>
-              <p className={`${mutedText} mt-2 leading-relaxed flex-1`}>
-                Keeps experimentation and production cleanly separated while
-                sharing curated compute and data services—data scientists touch
-                Train, platform team owns Test/Serve.
-              </p>
-            </div>
-          </div>
-        </FadeIn>
+            <motion.ul
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.08 } },
+              }}
+              className={`${mutedText} space-y-2 text-sm`}
+            >
+              {card.bullets.map((point) => (
+                <motion.li
+                  key={point}
+                  variants={{
+                    hidden: { opacity: 0, x: -14 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  • {point}
+                </motion.li>
+              ))}
+            </motion.ul>
+          </ScalePop>
+        ))}
       </div>
-      <FadeIn
-        delay={0.55}
+      <FadeInUp
+        delay={0.5}
         className="mt-8 rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-6 text-sm text-[var(--muted)]"
       >
         <div className="text-xs uppercase tracking-wide text-white/70 mb-3">
           Architecture Flow
         </div>
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.07 } },
+          }}
+          className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        >
           {[
             { label: "Dev Workstation", tone: "amber" },
             { label: "Makefile Automations", tone: "rose" },
             { label: "VPN Gateway", tone: "violet" },
             { label: "Base VNet", tone: "sky" },
             { label: "AML Workspaces", tone: "emerald" },
-          ].map((node, index, array) => (
+          ].map((node, idx, arr) => (
             <React.Fragment key={node.label}>
-              <div
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, scale: 0.8 },
+                  visible: { opacity: 1, scale: 1 },
+                }}
                 className={`rounded-full border border-${node.tone}-400/40 bg-${node.tone}-500/15 px-4 py-2 text-xs font-semibold text-${node.tone}-100`}
               >
                 {node.label}
-              </div>
-              {index < array.length - 1 && (
-                <span className="hidden md:block text-white/50">➔</span>
+              </motion.div>
+              {idx < arr.length - 1 && (
+                <motion.span
+                  variants={{
+                    hidden: { opacity: 0, x: -10 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                  className="hidden md:block text-white/60"
+                >
+                  ➔
+                </motion.span>
               )}
             </React.Fragment>
           ))}
-        </div>
+        </motion.div>
         <p className="mt-4 text-xs text-white/70">
           Automation lands developers inside the private network, routes traffic
           through the VPN gateway, and brokers secure access to AML workspaces
           and their private resources.
         </p>
-      </FadeIn>
+      </FadeInUp>
     </div>
   );
 }
@@ -408,10 +533,10 @@ function InfraCiCdSlide() {
 
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>Infrastructure Automation</h2>
-      </FadeIn>
-      <FadeIn
+      </FadeInUp>
+      <ScalePop
         delay={0.2}
         className={`${surface} mb-8 text-sm text-[var(--muted)] leading-relaxed`}
       >
@@ -419,13 +544,13 @@ function InfraCiCdSlide() {
         disposable infrastructure, merges refresh staging, and a guarded
         approval button promotes production. No snowflake environments, no
         guesswork.
-      </FadeIn>
+      </ScalePop>
       <div className="grid gap-6 lg:grid-cols-2">
         {flows.map((flow, index) => (
-          <FadeIn
+          <ScalePop
             key={flow.title}
             delay={0.2 + index * 0.12}
-            className={`${surface} flex flex-col gap-4`}
+            className={`${surface} flex flex-col gap-5 hover:border-white/20 transition-colors`}
           >
             <div className="flex items-center gap-3">
               <span className="text-2xl">{flow.icon}</span>
@@ -434,26 +559,42 @@ function InfraCiCdSlide() {
                 <p className={`${mutedText} mt-2`}>{flow.summary}</p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.06 } },
+              }}
+              className="flex flex-wrap items-center gap-2"
+            >
               {flow.steps.map((step, stepIndex) => (
-                <React.Fragment key={step.label}>
-                  <div
-                    className={`rounded-full border border-${step.tone}-400/40 bg-${step.tone}-500/15 px-3 py-1 text-xs font-semibold text-${step.tone}-100`}
-                  >
-                    {step.label}
-                  </div>
+                <motion.div
+                  key={step.label}
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  className={`inline-flex items-center gap-1 rounded-full border border-${step.tone}-400/40 bg-${step.tone}-500/15 px-3 py-1 text-xs font-semibold text-${step.tone}-100`}
+                >
+                  {step.label}
                   {stepIndex < flow.steps.length - 1 && (
-                    <span className="text-white/50">➔</span>
+                    <span className="text-white/60">➔</span>
                   )}
-                </React.Fragment>
+                </motion.div>
               ))}
-            </div>
-            <ul className={`${mutedText} text-xs space-y-2`}>
+            </motion.div>
+            <motion.ul
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.4 }}
+              className={`${mutedText} text-xs space-y-2`}
+            >
               {flow.details.map((detail) => (
                 <li key={detail}>• {detail}</li>
               ))}
-            </ul>
-          </FadeIn>
+            </motion.ul>
+          </ScalePop>
         ))}
       </div>
     </div>
@@ -516,10 +657,10 @@ function DataScienceFolderSlide() {
 
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>Data Science Folder Blueprint</h2>
-      </FadeIn>
-      <FadeIn
+      </FadeInUp>
+      <ScalePop
         delay={0.2}
         className={`${surface} bg-gradient-to-br from-white/10 via-white/5 to-transparent`}
       >
@@ -539,45 +680,63 @@ function DataScienceFolderSlide() {
         <div className="relative mt-6 pl-8">
           <div className="absolute left-8 top-3 bottom-3 border-l border-white/15" />
 
-          {structure.map((node, index) => {
-            const isLast = index === structure.length - 1;
-            return (
-              <div key={node.folder} className="relative pl-8 pb-8 last:pb-0">
-                <div className="absolute left-0 top-3 w-6 border-b border-white/15" />
-                <div className="flex items-start gap-3">
-                  <span className="text-xl">{node.icon}</span>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-baseline gap-2">
-                      <span className="text-base font-semibold text-white">
-                        {node.folder}
-                      </span>
-                      <span className="text-xs uppercase text-white/60">
-                        {node.label}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-[var(--muted)]">
-                      {node.blurb}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {node.chips.map((chip) => (
-                        <span
-                          key={chip}
-                          className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70"
-                        >
-                          {chip}
-                        </span>
-                      ))}
-                    </div>
-                    <ul className={`${mutedText} mt-3 space-y-2 text-sm`}>
-                      {node.details.map((detail) => (
-                        <li key={detail}>• {detail}</li>
-                      ))}
-                    </ul>
+          {structure.map((node, index) => (
+            <SlideInLeft
+              key={node.folder}
+              delay={0.25 + index * 0.08}
+              className="relative pl-8 pb-8 last:pb-0"
+            >
+              <div className="absolute left-0 top-3 w-6 border-b border-white/15" />
+              <div className="flex items-start gap-3">
+                <span className="text-xl">{node.icon}</span>
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-base font-semibold text-white">
+                      {node.folder}
+                    </span>
+                    <span className="text-xs uppercase text-white/60">
+                      {node.label}
+                    </span>
                   </div>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    {node.blurb}
+                  </p>
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.06 } },
+                    }}
+                    className="mt-3 flex flex-wrap gap-2"
+                  >
+                    {node.chips.map((chip) => (
+                      <motion.span
+                        key={chip}
+                        variants={{
+                          hidden: { opacity: 0, y: 6 },
+                          visible: { opacity: 1, y: 0 },
+                        }}
+                        className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70"
+                      >
+                        {chip}
+                      </motion.span>
+                    ))}
+                  </motion.div>
+                  <motion.ul
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.35 }}
+                    className={`${mutedText} mt-3 space-y-2 text-sm`}
+                  >
+                    {node.details.map((detail) => (
+                      <li key={detail}>• {detail}</li>
+                    ))}
+                  </motion.ul>
                 </div>
               </div>
-            );
-          })}
+            </SlideInLeft>
+          ))}
         </div>
         <div className="mt-6 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
           Promotion path: when an experiment hardens, code graduates into{" "}
@@ -585,7 +744,7 @@ function DataScienceFolderSlide() {
           <code>environments/</code>, and CI/CD pipelines pick up the changes
           automatically.
         </div>
-      </FadeIn>
+      </ScalePop>
     </div>
   );
 }
@@ -614,25 +773,25 @@ function ExperimentsSlide() {
 
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>Experiments as Decision Records</h2>
-      </FadeIn>
-      <FadeIn
+      </FadeInUp>
+      <FadeInUp
         delay={0.2}
         className="mx-auto max-w-4xl text-center text-sm text-[var(--muted)]"
       >
         Experiments live beside production code, acting as lightweight decision
         records. Each folder captures the hypothesis, code, data slices, and a
         markdown log so future readers understand what shipped—and why.
-      </FadeIn>
-      <FadeIn delay={0.3} className="mt-8 flex flex-col gap-6 lg:flex-row">
-        <div className={`${surface} flex-1 space-y-4`}>
+      </FadeInUp>
+      <div className="mt-8 flex flex-col gap-6 lg:flex-row">
+        <SlideInLeft delay={0.3} className={`${surface} flex-1 space-y-4`}>
           <span className={pill}>Folder Layout</span>
           <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
             {folderTree}
           </pre>
-        </div>
-        <div className={`${surface} flex-1 space-y-4`}>
+        </SlideInLeft>
+        <SlideInRight delay={0.35} className={`${surface} flex-1 space-y-4`}>
           <span className={pill}>Purpose</span>
           <ul className={`${mutedText} space-y-2 text-sm`}>
             <li>
@@ -655,9 +814,9 @@ function ExperimentsSlide() {
             Treat experiments/ like a lab notebook—tidy, searchable, and
             decision-oriented.
           </div>
-        </div>
-      </FadeIn>
-      <FadeIn delay={0.5} className={`${surface} mt-6 space-y-4`}>
+        </SlideInRight>
+      </div>
+      <ScalePop delay={0.5} className={`${surface} mt-6 space-y-4`}>
         <span className={pill}>Markdown Snapshot</span>
         <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
           {markdownSample}
@@ -667,7 +826,7 @@ function ExperimentsSlide() {
           data slices, and state clearly whether the experiment should move
           forward.
         </p>
-      </FadeIn>
+      </ScalePop>
     </div>
   );
 }
@@ -675,10 +834,10 @@ function ExperimentsSlide() {
 function MLOpsFoldersSlide() {
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>MLOps Pipelines</h2>
-      </FadeIn>
-      <FadeIn delay={0.2} className={`${surface} space-y-4`}>
+      </FadeInUp>
+      <ScalePop delay={0.2} className={`${surface} space-y-4`}>
         <span className={pill}>Folder Layout</span>
         <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">{`mlops/
 └── azureml/
@@ -709,7 +868,7 @@ function MLOpsFoldersSlide() {
           to spin up new pipeline variants without copying boilerplate from
           scratch.
         </div>
-      </FadeIn>
+      </ScalePop>
     </div>
   );
 }
@@ -717,11 +876,11 @@ function MLOpsFoldersSlide() {
 function OnlineEndpointSlide() {
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>Online Endpoint Blueprint</h2>
-      </FadeIn>
+      </FadeInUp>
       <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-        <FadeIn delay={0.2} className={`${surface} space-y-4`}>
+        <SlideInLeft delay={0.25} className={`${surface} space-y-4`}>
           <span className={pill}>Folder Layout</span>
           <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
             {`mlops/azureml/
@@ -737,8 +896,8 @@ function OnlineEndpointSlide() {
               • `deployment.yaml`: SKU, instance count, model + code config.
             </li>
           </ul>
-        </FadeIn>
-        <FadeIn delay={0.3} className={`${surface} space-y-4`}>
+        </SlideInLeft>
+        <SlideInRight delay={0.32} className={`${surface} space-y-4`}>
           <span className={pill}>Deploy It</span>
           <ul className={`${mutedText} space-y-2 text-sm`}>
             <li>
@@ -760,7 +919,7 @@ function OnlineEndpointSlide() {
             reproducible infrastructure. Copy the folder to bootstrap new
             real-time endpoints fast.
           </div>
-        </FadeIn>
+        </SlideInRight>
       </div>
     </div>
   );
@@ -791,11 +950,11 @@ function SecurityPolicySlide() {
 
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>🛡️ Security</h2>
-      </FadeIn>
+      </FadeInUp>
       <div className="grid gap-6 lg:grid-cols-2">
-        <FadeIn delay={0.2} className={`${surface} space-y-4`}>
+        <SlideInLeft delay={0.2} className={`${surface} space-y-4`}>
           <div className="flex items-center gap-2">
             <span className="text-xl">🏗️</span>
             <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -826,8 +985,8 @@ function SecurityPolicySlide() {
               • Encryption: HTTPS/TLS in transit, customer-managed keys at rest.
             </li>
           </ul>
-        </FadeIn>
-        <FadeIn delay={0.3} className={`${surface} space-y-4`}>
+        </SlideInLeft>
+        <SlideInRight delay={0.3} className={`${surface} space-y-4`}>
           <div className="flex items-center gap-2">
             <span className="text-xl">🔍</span>
             <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -857,10 +1016,10 @@ function SecurityPolicySlide() {
               <li>• Ensures infrastructure meets governance baselines.</li>
             </ul>
           </div>
-        </FadeIn>
+        </SlideInRight>
       </div>
       <div className="grid gap-6 lg:grid-cols-[1.1fr,1fr] mt-6">
-        <FadeIn delay={0.35} className={`${surface} space-y-4`}>
+        <SlideInLeft delay={0.35} className={`${surface} space-y-4`}>
           <div className="flex items-center gap-2">
             <span className="text-xl">💻</span>
             <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -883,8 +1042,8 @@ function SecurityPolicySlide() {
             and document justified exceptions in `.trivyignore` or
             `.checkov.yml`.
           </p>
-        </FadeIn>
-        <FadeIn delay={0.4} className={`${surface} space-y-4`}>
+        </SlideInLeft>
+        <SlideInRight delay={0.4} className={`${surface} space-y-4`}>
           <div className="flex items-center gap-2">
             <span className="text-xl">🚀</span>
             <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -899,9 +1058,9 @@ function SecurityPolicySlide() {
             parallel, publishes SARIF to the Security tab, and blocks merges on
             CRITICAL/HIGH issues.
           </div>
-        </FadeIn>
+        </SlideInRight>
       </div>
-      <FadeIn delay={0.45} className={`${surface} mt-6 space-y-4`}>
+      <ScalePop delay={0.5} className={`${surface} mt-6 space-y-4`}>
         <div className="flex items-center gap-2">
           <span className="text-xl">🚨</span>
           <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -926,7 +1085,7 @@ function SecurityPolicySlide() {
             `.trivyignore` track policies and approved exceptions.
           </li>
         </ul>
-      </FadeIn>
+      </ScalePop>
     </div>
   );
 }
@@ -1025,10 +1184,10 @@ function CicdAutomationSlide() {
 
   return (
     <div className="h-full p-8 flex flex-col justify-center">
-      <FadeIn className="mb-8 text-center">
+      <FadeInUp className="mb-8 text-center">
         <h2 className={gradientTitle}>CI/CD Keeps Models Fresh</h2>
-      </FadeIn>
-      <FadeIn
+      </FadeInUp>
+      <ScalePop
         delay={0.2}
         className={`${surface} space-y-4 bg-gradient-to-br from-white/10 via-white/5 to-transparent`}
       >
@@ -1040,9 +1199,9 @@ function CicdAutomationSlide() {
         </p>
         <div className="grid gap-6 lg:grid-cols-2">
           {steps.map((step, index) => (
-            <FadeIn
+            <ScalePop
               key={step.title}
-              delay={0.25 + index * 0.08}
+              delay={0.28 + index * 0.1}
               className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3"
             >
               <div className="flex items-center gap-3">
@@ -1054,16 +1213,21 @@ function CicdAutomationSlide() {
                   <p className={`${mutedText} text-xs`}>{step.description}</p>
                 </div>
               </div>
-              <ul className={`${mutedText} text-xs space-y-2`}>
+              <motion.ul
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.35 }}
+                className={`${mutedText} text-xs space-y-2`}
+              >
                 {step.highlights.map((highlight) => (
                   <li key={highlight}>• {highlight}</li>
                 ))}
-              </ul>
-            </FadeIn>
+              </motion.ul>
+            </ScalePop>
           ))}
         </div>
-      </FadeIn>
-      <FadeIn delay={0.45} className={`${surface} mt-6 space-y-4`}>
+      </ScalePop>
+      <SlideInRight delay={0.55} className={`${surface} mt-6 space-y-4`}>
         <span className={pill}>Example GitHub Workflow</span>
         <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
           {workflowYaml}
@@ -1073,7 +1237,7 @@ function CicdAutomationSlide() {
           (datasets, envs, pipelines) to automate other AML scenarios with the
           same pattern.
         </p>
-      </FadeIn>
+      </SlideInRight>
     </div>
   );
 }
@@ -1085,15 +1249,19 @@ function QASlide() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
-        className="space-y-8 max-w-5xl"
+        className="space-y-10 max-w-5xl"
       >
         <h2 className="text-[clamp(44px,7vw,80px)] font-extrabold bg-gradient-to-r from-amber-400 via-rose-400 to-indigo-500 bg-clip-text text-transparent">
           Q&A · What's Next?
         </h2>
-        <p className="text-lg text-[var(--muted)]">
+        <FadeInUp delay={0.15} className="text-lg text-[var(--muted)]">
           Ask about infrastructure design, security posture, developer workflow,
           or anything else you need to take this accelerator into production.
-        </p>
+        </FadeInUp>
+        <FadeInUp delay={0.45} className="text-sm text-white/70">
+          Follow-ups: GitHub repo issues · #mlops-accelerator channel · Office
+          hours every Friday
+        </FadeInUp>
       </motion.div>
     </div>
   );

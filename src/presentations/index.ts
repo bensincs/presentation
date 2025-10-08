@@ -14,7 +14,7 @@ const presentations: PresentationEntry[] = [
     subtitle:
       "From reproducible Conda workstations to automated Azure ML pipelines",
     author: "Ben Sinclair",
-    state: "WIP",
+    state: "Ready",
     subjects: ["Azure ML", "MLOps", "Automation"],
     slides: mlopsAcceleratorSlides,
     component: MLOpsAcceleratorDeck,
