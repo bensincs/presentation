@@ -2,9 +2,23 @@ import AzureRMContribDeck, {
   azurermContribSlides,
 } from "./terraform-provider-azurerm/AzureRMContribDeck";
 import HVEMcpDeck, { hveMcpSlides } from "./hve-mcp/HVEMcpDeck";
+import MLOpsAcceleratorDeck, {
+  mlopsAcceleratorSlides,
+} from "./mlops-accelerator/MLOpsAcceleratorDeck";
 import type { PresentationEntry } from "../types";
 
 const presentations: PresentationEntry[] = [
+  {
+    id: "mlops-accelerator",
+    title: "MLOps Accelerator",
+    subtitle:
+      "From reproducible Conda workstations to automated Azure ML pipelines",
+    author: "Ben Sinclair",
+    state: "WIP",
+    subjects: ["Azure ML", "MLOps", "Automation"],
+    slides: mlopsAcceleratorSlides,
+    component: MLOpsAcceleratorDeck,
+  },
   {
     id: "hve-mcp-server",
     title: "HVE-ing an MCP Server",

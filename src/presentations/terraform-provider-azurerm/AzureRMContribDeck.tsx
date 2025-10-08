@@ -34,6 +34,15 @@ export const azurermContribSlides: SlideMeta[] = [
     ],
   },
   {
+    id: "dev-experience",
+    transition: "slide",
+    speakerNotes: [
+      "Walk through the ready-to-code experience: devcontainer, make targets, and the first validation loop.",
+      "Call out that the container mirrors CI tooling so lint and tests behave identically anywhere.",
+      "Remind folks to keep az login pointed at a safe subscription before running acceptance tests.",
+    ],
+  },
+  {
     id: "why-contribute",
     transition: "slide",
     speakerNotes: [
@@ -178,23 +187,77 @@ function TitleSlide() {
       </FadeIn>
       <FadeIn
         delay={0.65}
-        className="mt-12 grid gap-4 text-left sm:grid-cols-3"
+        className="mt-12 max-w-2xl text-sm text-[var(--muted)]"
       >
-        {[
-          { label: "Merged PRs", value: "6.4k+", tone: "sky" },
-          { label: "Resources", value: "430+", tone: "emerald" },
-          { label: "Releases", value: "weekly", tone: "violet" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-[var(--muted)]"
+        AzureRM is one of the busiest Terraform providers on the planet. Every
+        disciplined contribution keeps infrastructure teams unblocked, so thank
+        you for jumping in and bringing the next resource to life.
+      </FadeIn>
+    </div>
+  );
+}
+
+function DevExperienceSlide() {
+  const cards = [
+    {
+      title: "Dev Container",
+      tone: "sky",
+      points: [
+        "Preloads Go, Terraform CLI, tfplugindocs, and az CLI.",
+        "Matches CI tooling so lint/test output is identical everywhere.",
+        "Ideal for local Docker or GitHub Codespaces sessions.",
+      ],
+    },
+    {
+      title: "Make Targets",
+      tone: "emerald",
+      points: [
+        "`make tools` installs helper binaries; `make vendor` syncs modules.",
+        "`make lint test` mirrors CI checks before you push a branch.",
+        "`make fmt` and pre-commit hooks keep the repo tidy automatically.",
+      ],
+    },
+    {
+      title: "Quick Validation",
+      tone: "violet",
+      points: [
+        "Run `go test ./...` with TF_ACC unset for fast feedback loops.",
+        "Use `task docs` or `make website` to preview provider docs locally.",
+        "Authenticate az CLI against a disposable subscription ahead of TF_ACC runs.",
+      ],
+    },
+  ];
+
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeIn className="mb-8 text-center">
+        <h2 className={gradientTitle}>Developer Experience Setup</h2>
+      </FadeIn>
+      <div className="grid gap-6 lg:grid-cols-3">
+        {cards.map((card, index) => (
+          <FadeIn
+            key={card.title}
+            delay={0.2 + index * 0.12}
+            className={`${surfaceCard} border-${card.tone}-400/30 bg-${card.tone}-500/10`}
           >
-            <div className={`text-${stat.tone}-100 text-xs uppercase`}>
-              {stat.label}
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-semibold text-white">
+                {card.title}
+              </span>
+              <span className={`text-xs uppercase text-${card.tone}-100`}>
+                Ready Day 1
+              </span>
             </div>
-            <div className="text-2xl font-bold text-white">{stat.value}</div>
-          </div>
+            <ul className={mutedList}>
+              {card.points.map((point) => (
+                <li key={point}>• {point}</li>
+              ))}
+            </ul>
+          </FadeIn>
         ))}
+      </div>
+      <FadeIn delay={0.55} className="mt-8 text-center text-xs text-white/70">
+        Get the basics locked, then focus your energy on shipping the resource—not fighting your workstation.
       </FadeIn>
     </div>
   );
@@ -733,7 +796,7 @@ func resourceMachineLearningWorkspaceRead(d *pluginsdk.ResourceData, meta interf
 }
 `}
           </pre>
-          <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)]">
+          <pre className="overflow-auto rounded-xl bg-slate-950/75 p-4 text-xs text-[var(--muted)] text-wrap">
             {`func resourceMachineLearningWorkspaceUpdate(d *pluginsdk.ResourceData, meta interface{}) error {
   client := meta.(*clients.Client).MachineLearning.Workspaces
   ctx, cancel := timeouts.ForUpdate(meta.(*clients.Client).StopContext, d)
@@ -1035,6 +1098,7 @@ function QASlide() {
 
 const slideMap: Record<string, React.ReactNode> = {
   title: <TitleSlide />,
+  "dev-experience": <DevExperienceSlide />,
   "why-contribute": <WhyContributeSlide />,
   "provider-architecture": <ProviderArchitectureSlide />,
   "tooling-setup": <ToolingSetupSlide />,
