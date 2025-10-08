@@ -76,12 +76,40 @@ export const mlopsAcceleratorSlides: SlideMeta[] = [
     ],
   },
   {
+    id: "online-endpoints",
+    transition: "slide",
+    speakerNotes: [
+      "Highlight that the repo includes an example online endpoint deployment under mlops/azureml/example_online_endpoint.",
+      "Explain the artefacts: env.yaml, endpoint.yaml, deployment.yaml—together they capture environment, endpoint configuration, and deployment spec.",
+      "Call out that teams can copy these files, adjust compute/traffic settings, and run the same az ml workflows to publish real-time inference endpoints.",
+    ],
+  },
+  {
+    id: "security-policy",
+    transition: "up",
+    speakerNotes: [
+      "Walk through the security posture powering this accelerator: private networking, managed identity, encryption at rest and in transit.",
+      "Explain the dual scanning strategy—Trivy + Checkov—covering Terraform, Docker, and GitHub workflows with merge blocking for critical findings.",
+      "Share how developers integrate scans locally (./scripts/security-scan.sh) and how CI/CD surfaces SARIF results in GitHub.",
+      "Note compliance alignment (Azure Security Benchmark, WAF, NIST CSF) and the importance of documenting exceptions in .trivyignore or .checkov.yml.",
+    ],
+  },
+  {
     id: "cicd-automation",
     transition: "fade",
     speakerNotes: [
       "Show that each AML pipeline has an accompanying CI/CD workflow so merges to main automatically retrain or redeploy as needed.",
       "Call out the safety net: automation keeps model training repeatable and frees engineers from manual triggering.",
       "Invite the audience to think about layering approvals or alerts on top for regulated workloads.",
+    ],
+  },
+  {
+    id: "qa",
+    transition: "fade",
+    speakerNotes: [
+      "Invite the audience to ask about anything from the accelerator: infrastructure, security, developer workflow, CI/CD.",
+      "Offer to walk through specific YAMLs, scripts, or deployment steps live.",
+      "Share follow-up channels: GitHub repo issues, internal chat, office hours.",
     ],
   },
 ];
@@ -686,6 +714,223 @@ function MLOpsFoldersSlide() {
   );
 }
 
+function OnlineEndpointSlide() {
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeIn className="mb-8 text-center">
+        <h2 className={gradientTitle}>Online Endpoint Blueprint</h2>
+      </FadeIn>
+      <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
+        <FadeIn delay={0.2} className={`${surface} space-y-4`}>
+          <span className={pill}>Folder Layout</span>
+          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
+            {`mlops/azureml/
+└── example_online_endpoint/
+    ├── env.yaml
+    ├── endpoint.yaml
+    └── deployment.yaml`}
+          </pre>
+          <ul className={`${mutedText} space-y-2 text-sm`}>
+            <li>• `env.yaml`: runtime packages for the scoring container.</li>
+            <li>• `endpoint.yaml`: endpoint name, auth mode, traffic rules.</li>
+            <li>
+              • `deployment.yaml`: SKU, instance count, model + code config.
+            </li>
+          </ul>
+        </FadeIn>
+        <FadeIn delay={0.3} className={`${surface} space-y-4`}>
+          <span className={pill}>Deploy It</span>
+          <ul className={`${mutedText} space-y-2 text-sm`}>
+            <li>
+              • `az ml online-endpoint create -f
+              mlops/azureml/example_online_endpoint/endpoint.yaml`
+            </li>
+            <li>
+              • `az ml online-deployment create -f
+              mlops/azureml/example_online_endpoint/deployment.yaml
+              --all-traffic`
+            </li>
+            <li>
+              • Swap in your environment/model paths, commit, and let CI/CD
+              mirror the deployment.
+            </li>
+          </ul>
+          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
+            The pattern matches the training pipelines: versioned YAML + CLI =
+            reproducible infrastructure. Copy the folder to bootstrap new
+            real-time endpoints fast.
+          </div>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
+function SecurityPolicySlide() {
+  const workflowYaml = [
+    "# .github/workflows/security.yml",
+    "jobs:",
+    "  trivy-security-scan:",
+    "    runs-on: ubuntu-latest",
+    "    steps:",
+    "      - uses: aquasecurity/trivy-action@v0.33.1",
+    "        with:",
+    '          scan-type: "config"',
+    '          format: "sarif"',
+    '          severity: "MEDIUM,HIGH,CRITICAL"',
+    "          exit-code: 1",
+    "",
+    "  checkov-security-scan:",
+    "    runs-on: ubuntu-latest",
+    "    steps:",
+    "      - uses: bridgecrewio/checkov-action@master",
+    "        with:",
+    "          framework: terraform,dockerfile,github_actions",
+    "          output_format: sarif,cli",
+  ].join("\n");
+
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeIn className="mb-8 text-center">
+        <h2 className={gradientTitle}>🛡️ Security</h2>
+      </FadeIn>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <FadeIn delay={0.2} className={`${surface} space-y-4`}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🏗️</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
+              Architecture Security Features
+            </span>
+          </div>
+          <ul className={`${mutedText} space-y-2 text-sm`}>
+            <li>
+              • Private Endpoints: All Azure ML services use private endpoints.
+            </li>
+            <li>
+              • Network Isolation: Hub-and-spoke architecture with subnet
+              segmentation.
+            </li>
+            <li>
+              • VPN Gateway: Secure site-to-site connectivity into the workspace
+              VNets.
+            </li>
+            <li>
+              • NSGs: Least-privilege network security group rules on every
+              subnet.
+            </li>
+            <li>
+              • Managed Identity: No secrets—Azure AD-backed identities
+              everywhere.
+            </li>
+            <li>
+              • Encryption: HTTPS/TLS in transit, customer-managed keys at rest.
+            </li>
+          </ul>
+        </FadeIn>
+        <FadeIn delay={0.3} className={`${surface} space-y-4`}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🔍</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
+              Dual Security Scanner Approach
+            </span>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs text-white/80 space-y-2">
+            <div className="font-semibold text-white">🐛 Trivy Scanner</div>
+            <ul className="space-y-1.5">
+              <li>
+                • Terraform, Docker, GitHub Actions vulnerability scanning.
+              </li>
+              <li>• CVE database integration, SARIF artifact output.</li>
+              <li>• Blocks PRs with HIGH/CRITICAL findings.</li>
+            </ul>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs text-white/80 space-y-2">
+            <div className="font-semibold text-white">✅ Checkov Scanner</div>
+            <ul className="space-y-1.5">
+              <li>
+                • 450+ security + compliance checks across Terraform, Docker,
+                GitHub Actions.
+              </li>
+              <li>
+                • Azure-specific IaC policies, policy-as-code enforcement.
+              </li>
+              <li>• Ensures infrastructure meets governance baselines.</li>
+            </ul>
+          </div>
+        </FadeIn>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-[1.1fr,1fr] mt-6">
+        <FadeIn delay={0.35} className={`${surface} space-y-4`}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">💻</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
+              Developer Workflow Integration
+            </span>
+          </div>
+          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
+            {`# Comprehensive security scan
+./scripts/security-scan.sh
+
+# Fast scan for changed files only
+./scripts/security-scan.sh --changed-only
+
+# Tool-specific scans
+./scripts/security-scan.sh --trivy-only
+./scripts/security-scan.sh --checkov-only`}
+          </pre>
+          <p className={`${mutedText} text-xs`}>
+            Run the full scan before PRs, use `--changed-only` while iterating,
+            and document justified exceptions in `.trivyignore` or
+            `.checkov.yml`.
+          </p>
+        </FadeIn>
+        <FadeIn delay={0.4} className={`${surface} space-y-4`}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🚀</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
+              CI/CD Security Pipeline
+            </span>
+          </div>
+          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-white/80 overflow-auto">
+            {workflowYaml}
+          </pre>
+          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
+            Automated GitHub Actions pipeline runs Trivy and Checkov in
+            parallel, publishes SARIF to the Security tab, and blocks merges on
+            CRITICAL/HIGH issues.
+          </div>
+        </FadeIn>
+      </div>
+      <FadeIn delay={0.45} className={`${surface} mt-6 space-y-4`}>
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🚨</span>
+          <span className="text-sm font-semibold uppercase tracking-wide text-white/80">
+            Security Enforcement & Feedback
+          </span>
+        </div>
+        <ul className={`${mutedText} space-y-2 text-sm`}>
+          <li>
+            • PR Blocking: CRITICAL/HIGH findings block merges until resolved;
+            MEDIUM/LOW provide remediation guidance.
+          </li>
+          <li>
+            • Automatic Comments: Security summary posted on PRs with key issues
+            and next steps.
+          </li>
+          <li>
+            • Reporting: SARIF artifacts in GitHub Security tab; compliance
+            scoring + trend analysis for audits.
+          </li>
+          <li>
+            • Configuration Management: `.checkov.yml`, `trivy.yaml`,
+            `.trivyignore` track policies and approved exceptions.
+          </li>
+        </ul>
+      </FadeIn>
+    </div>
+  );
+}
+
 function CicdAutomationSlide() {
   const workflowYaml = [
     "name: deploy-model-training-pipeline",
@@ -833,6 +1078,27 @@ function CicdAutomationSlide() {
   );
 }
 
+function QASlide() {
+  return (
+    <div className="h-full p-8 flex flex-col justify-center items-center text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="space-y-8 max-w-5xl"
+      >
+        <h2 className="text-[clamp(44px,7vw,80px)] font-extrabold bg-gradient-to-r from-amber-400 via-rose-400 to-indigo-500 bg-clip-text text-transparent">
+          Q&A · What's Next?
+        </h2>
+        <p className="text-lg text-[var(--muted)]">
+          Ask about infrastructure design, security posture, developer workflow,
+          or anything else you need to take this accelerator into production.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
 const slideMap: Record<string, React.ReactNode> = {
   title: <TitleSlide />,
   "dev-experience": <DevExperienceSlide />,
@@ -841,7 +1107,10 @@ const slideMap: Record<string, React.ReactNode> = {
   "data-science-folder": <DataScienceFolderSlide />,
   experiments: <ExperimentsSlide />,
   "mlops-folders": <MLOpsFoldersSlide />,
+  "online-endpoints": <OnlineEndpointSlide />,
+  "security-policy": <SecurityPolicySlide />,
   "cicd-automation": <CicdAutomationSlide />,
+  qa: <QASlide />,
 };
 
 export default function MLOpsAcceleratorDeck({ slide }: DeckComponentProps) {
