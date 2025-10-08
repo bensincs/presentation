@@ -6,6 +6,7 @@ import Deck from "../shared/deck/Deck";
 import Slide from "../shared/deck/Slide";
 import useDeckNavigation from "../shared/deck/useDeckNavigation";
 import useSyncedSlideIndex from "../shared/deck/useSyncedSlideIndex";
+import useSyncedLaserPosition from "../shared/deck/useSyncedLaserPosition";
 import SpeakerOverlay from "../shared/deck/SpeakerOverlay";
 import type { PresentationEntry, SlideMeta } from "../types";
 import { pre } from "framer-motion/client";
@@ -38,6 +39,9 @@ export default function DeckRunner() {
   const [speakerPanelWidth, setSpeakerPanelWidth] = useState(420);
   const [speakerPanelHeight, setSpeakerPanelHeight] = useState(320);
   const [isSpeakerFullscreen, setIsSpeakerFullscreen] = useState(false);
+  const [laserEnabled, setLaserEnabled] = useState(false);
+  const { position: syncedLaserPosition, setPosition: setSyncedLaserPosition } =
+    useSyncedLaserPosition({ deckId: entry?.id });
 
   const activeSlideMeta = useMemo<SlideMeta | undefined>(() => {
     if (!entry) {
@@ -189,8 +193,22 @@ export default function DeckRunner() {
         toggleSpeakerFullscreen();
         return;
       }
+
+      if (lower === "p") {
+        prevent();
+        setLaserEnabled((prev) => !prev);
+        return;
+      }
     },
-    [goNext, goPrev, handleCloseSpeakerOverlay, showSpeakerOverlay]
+    [
+      goNext,
+      goPrev,
+      handleCloseSpeakerOverlay,
+      showSpeakerOverlay,
+      toggleSpeakerOverlay,
+      toggleSpeakerFullscreen,
+      setLaserEnabled,
+    ]
   );
 
   useEffect(() => {
@@ -213,6 +231,25 @@ export default function DeckRunner() {
     },
     [handlePresentationKey]
   );
+
+  const handleLaserMove = useCallback(
+    (pos: { x: number; y: number } | null) => {
+      setSyncedLaserPosition(pos);
+    },
+    [setSyncedLaserPosition]
+  );
+
+  useEffect(() => {
+    if (!laserEnabled) {
+      setSyncedLaserPosition(null);
+    }
+  }, [laserEnabled, setSyncedLaserPosition]);
+
+  useEffect(() => {
+    return () => {
+      setSyncedLaserPosition(null);
+    };
+  }, [setSyncedLaserPosition]);
 
   if (!entry) {
     return (
@@ -247,6 +284,9 @@ export default function DeckRunner() {
         showSpeakerOverlay={showSpeakerOverlay}
         onToggleSpeakerOverlay={toggleSpeakerOverlay}
         onKeyDown={handleDeckKeyDown}
+        laserEnabled={laserEnabled}
+        laserPosition={syncedLaserPosition}
+        onLaserMove={handleLaserMove}
       >
         <Slide>
           <div className="mx-auto max-w-5xl px-4 py-8">
@@ -258,7 +298,7 @@ export default function DeckRunner() {
             </h2>
             <p className="mt-3 text-[var(--muted)]">
               Keyboard: ← → Space to navigate, "n" to toggle notes, f for
-              fullscreen notes, Esc to exit presentation
+              fullscreen notes, "p" for laser pointer, Esc to exit presentation
             </p>
           </div>
         </Slide>
