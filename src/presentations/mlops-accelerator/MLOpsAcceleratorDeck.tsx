@@ -206,7 +206,7 @@ function TitleSlide() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
-        MLOps Accelerator
+        Traffic Manager Factory
       </motion.h1>
       <FadeInUp
         delay={0.25}
