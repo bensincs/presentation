@@ -5,9 +5,22 @@ import HVEMcpDeck, { hveMcpSlides } from "./hve-mcp/HVEMcpDeck";
 import MLOpsAcceleratorDeck, {
   mlopsAcceleratorSlides,
 } from "./mlops-accelerator/MLOpsAcceleratorDeck";
+import MultiAgentCoordinationDeck, {
+  multiAgentCoordinationSlides,
+} from "./multi-agent-coordination/MultiAgentCoordinationDeck";
 import type { PresentationEntry } from "../types";
 
 const presentations: PresentationEntry[] = [
+  {
+    id: "multi-agent-coordination",
+    title: "Coordination Patterns for Multi-Agent Systems",
+    subtitle: "Beyond Handoffs, Hierarchies, and Agent-as-Tool",
+    author: "Ben Sinclair",
+    state: "Ready",
+    subjects: ["Multi-Agent", "Pub/Sub", "Architecture"],
+    slides: multiAgentCoordinationSlides,
+    component: MultiAgentCoordinationDeck,
+  },
   {
     id: "mlops-accelerator",
     title: "MLOps Accelerator",

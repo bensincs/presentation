@@ -48,15 +48,15 @@ export const mlopsAcceleratorSlides: SlideMeta[] = [
       "Close with the promotion flow: merge to main deploys staging, manual approval pushes production base and all three workspaces.",
     ],
   },
-  {
-    id: "data-science-folder",
-    transition: "slide",
-    speakerNotes: [
-      "Introduce the repository layout so teams know where to contribute experiments versus production code.",
-      "Highlight that src/ is production-grade pipeline code with tests, environments/ holds vetted Conda specs, and experiments/ captures iterative work with findings.",
-      "Reinforce that the same Conda tooling powers local runs and pipeline executions to avoid drift.",
-    ],
-  },
+  // {
+  //   id: "data-science-folder",
+  //   transition: "slide",
+  //   speakerNotes: [
+  //     "Introduce the repository layout so teams know where to contribute experiments versus production code.",
+  //     "Highlight that src/ is production-grade pipeline code with tests, environments/ holds vetted Conda specs, and experiments/ captures iterative work with findings.",
+  //     "Reinforce that the same Conda tooling powers local runs and pipeline executions to avoid drift.",
+  //   ],
+  // },
   {
     id: "experiments",
     transition: "slide",
@@ -66,24 +66,24 @@ export const mlopsAcceleratorSlides: SlideMeta[] = [
       "Explain that each experiment bundles runnable code and markdown summaries to document outcomes and recommendations.",
     ],
   },
-  {
-    id: "mlops-folders",
-    transition: "slide",
-    speakerNotes: [
-      "Outline how the MLOps folder mirrors AML capabilities: discrete pipelines to register datasets, register environments, and run composite pipelines.",
-      "Explain that pipelines promote the same src code and environment definitions managed by the data science team.",
-      "Mention the local run story — az ml CLI or the VS Code extension can execute the same steps before CI/CD picks them up.",
-    ],
-  },
-  {
-    id: "online-endpoints",
-    transition: "slide",
-    speakerNotes: [
-      "Highlight that the repo includes an example online endpoint deployment under mlops/azureml/example_online_endpoint.",
-      "Explain the artefacts: env.yaml, endpoint.yaml, deployment.yaml—together they capture environment, endpoint configuration, and deployment spec.",
-      "Call out that teams can copy these files, adjust compute/traffic settings, and run the same az ml workflows to publish real-time inference endpoints.",
-    ],
-  },
+  // {
+  //   id: "mlops-folders",
+  //   transition: "slide",
+  //   speakerNotes: [
+  //     "Outline how the MLOps folder mirrors AML capabilities: discrete pipelines to register datasets, register environments, and run composite pipelines.",
+  //     "Explain that pipelines promote the same src code and environment definitions managed by the data science team.",
+  //     "Mention the local run story — az ml CLI or the VS Code extension can execute the same steps before CI/CD picks them up.",
+  //   ],
+  // },
+  // {
+  //   id: "online-endpoints",
+  //   transition: "slide",
+  //   speakerNotes: [
+  //     "Highlight that the repo includes an example online endpoint deployment under mlops/azureml/example_online_endpoint.",
+  //     "Explain the artefacts: env.yaml, endpoint.yaml, deployment.yaml—together they capture environment, endpoint configuration, and deployment spec.",
+  //     "Call out that teams can copy these files, adjust compute/traffic settings, and run the same az ml workflows to publish real-time inference endpoints.",
+  //   ],
+  // },
   {
     id: "security-policy",
     transition: "up",
@@ -104,14 +104,23 @@ export const mlopsAcceleratorSlides: SlideMeta[] = [
     ],
   },
   {
-    id: "qa",
+    id: "title",
     transition: "fade",
     speakerNotes: [
-      "Invite the audience to ask about anything from the accelerator: infrastructure, security, developer workflow, CI/CD.",
-      "Offer to walk through specific YAMLs, scripts, or deployment steps live.",
-      "Share follow-up channels: GitHub repo issues, internal chat, office hours.",
+      "Open with the promise of the accelerator: fastest path for data scientists to get productive on Azure ML with managed tooling.",
+      "Explain that development happens in reproducible Conda environments and Dev Containers so local and remote runs behave the same.",
+      "Call out the Makefile: one command to build or refresh every Conda env; minimal cognitive load for contributors.",
     ],
   },
+  // {
+  //   id: "qa",
+  //   transition: "fade",
+  //   speakerNotes: [
+  //     "Invite the audience to ask about anything from the accelerator: infrastructure, security, developer workflow, CI/CD.",
+  //     "Offer to walk through specific YAMLs, scripts, or deployment steps live.",
+  //     "Share follow-up channels: GitHub repo issues, internal chat, office hours.",
+  //   ],
+  // },
 ];
 
 type FadeInProps = {
@@ -206,7 +215,7 @@ function TitleSlide() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
-        Traffic Manager Factory
+        Secure MLOps Accelerator
       </motion.h1>
       <FadeInUp
         delay={0.25}
