@@ -8,9 +8,22 @@ import MLOpsAcceleratorDeck, {
 import MultiAgentCoordinationDeck, {
   multiAgentCoordinationSlides,
 } from "./multi-agent-coordination/MultiAgentCoordinationDeck";
+import SelfEvolvingRuntimeDeck, {
+  selfEvolvingRuntimeSlides,
+} from "./self-evolving-runtime/SelfEvolvingRuntimeDeck";
 import type { PresentationEntry } from "../types";
 
 const presentations: PresentationEntry[] = [
+  {
+    id: "self-evolving-runtime",
+    title: "Self-Evolving Agent Runtime",
+    subtitle: "Learning, Deterministic Agents via Persistent Capabilities",
+    author: "Ben Sinclair",
+    state: "Ready",
+    subjects: ["Agents", "WASM", "Vector Search"],
+    slides: selfEvolvingRuntimeSlides,
+    component: SelfEvolvingRuntimeDeck,
+  },
   {
     id: "multi-agent-coordination",
     title: "Coordination Patterns for Multi-Agent Systems",
