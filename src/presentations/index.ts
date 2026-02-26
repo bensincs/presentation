@@ -11,6 +11,9 @@ import MultiAgentCoordinationDeck, {
 import SelfEvolvingRuntimeDeck, {
   selfEvolvingRuntimeSlides,
 } from "./self-evolving-runtime/SelfEvolvingRuntimeDeck";
+import SynergyAIModeDeck, {
+  synergyAIModeSlides,
+} from "./synergy-ai-mode/SynergyAIModeDeck";
 import type { PresentationEntry } from "../types";
 
 const presentations: PresentationEntry[] = [
@@ -65,6 +68,16 @@ const presentations: PresentationEntry[] = [
     subjects: ["Infrastructure", "Azure", "Terraform"],
     slides: azurermContribSlides,
     component: AzureRMContribDeck,
+  },
+  {
+    id: "synergy-ai-mode",
+    title: "Synergy AI Mode",
+    subtitle: "Presight + Microsoft ISE",
+    author: "Ben Sinclair",
+    state: "WIP",
+    subjects: ["AI", "Presight", "Microsoft ISE"],
+    slides: synergyAIModeSlides,
+    component: SynergyAIModeDeck,
   },
 ];
 
