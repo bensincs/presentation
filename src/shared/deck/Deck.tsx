@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState, Children } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  Children,
+} from "react";
 import type { PropsWithChildren } from "react";
 import PresentationControls from "./PresentationControls";
 
@@ -125,6 +131,8 @@ export default function Deck({
   const hideCursor = laserEnabled && pixelPosition;
   const pointerLabel = laserEnabled ? "#1" : "Off";
 
+  const allSlides = Children.toArray(children);
+
   return (
     <section
       ref={hostRef}
@@ -158,10 +166,11 @@ export default function Deck({
           />
         </div>
       ) : null}
+
+      {/* Normal mode: render only the current slide */}
       <div className="w-full h-full">
-        {/* Stage area */}
         <div className="mx-auto max-w-[1100px] h-full">
-          {Children.toArray(children)[index]}
+          {allSlides[index]}
         </div>
       </div>
 

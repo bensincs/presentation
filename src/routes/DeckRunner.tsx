@@ -9,7 +9,6 @@ import useSyncedSlideIndex from "../shared/deck/useSyncedSlideIndex";
 import useSyncedLaserPosition from "../shared/deck/useSyncedLaserPosition";
 import SpeakerOverlay from "../shared/deck/SpeakerOverlay";
 import type { PresentationEntry, SlideMeta } from "../types";
-import { pre } from "framer-motion/client";
 
 const SPEAKER_FONT_MIN = 0.85;
 const SPEAKER_FONT_MAX = 1.6;

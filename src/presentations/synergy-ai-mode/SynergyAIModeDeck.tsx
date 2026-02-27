@@ -5,7 +5,7 @@ import type { DeckComponentProps, SlideMeta } from "../../types";
 /* ── shared style tokens ─────────────────────────────────────────────── */
 
 const gradientTitle =
-  "text-5xl font-bold bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-500 bg-clip-text text-transparent pb-1";
+  "text-5xl font-bold bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent pb-1";
 const surface =
   "surface rounded-2xl border border-white/5 bg-white/5 px-6 py-5 shadow-lg shadow-black/20";
 const mutedText = "text-sm text-[var(--muted)] leading-relaxed";
@@ -51,6 +51,15 @@ const ScalePop: React.FC<MotionBlockProps> = ({
 /* ── slide metadata ──────────────────────────────────────────────────── */
 
 export const synergyAIModeSlides: SlideMeta[] = [
+  {
+    id: "title",
+    transition: "fade",
+    speakerNotes: [
+      "Open by framing the engagement: Presight partnered with Microsoft ISE to bring conversational AI into their Synergy analytics platform.",
+      "This presentation walks through six iterations of AI Mode — from initial agentic infrastructure to a production-grade, streaming, multi-agent chat experience.",
+      "Emphasise the dual-track nature: every version covers both backend (Java/Spring) and frontend (React/MobX) work in parallel.",
+    ],
+  },
   {
     id: "engagement-scope",
     transition: "fade",
@@ -235,9 +244,64 @@ export const synergyAIModeSlides: SlideMeta[] = [
       "Microphone error handling improved: proper error messages for missing devices, failed access permissions, and empty transcriptions. WaveSurfer wrapper throws on destroyed instances and missing audio devices.",
     ],
   },
+  {
+    id: "summary",
+    transition: "fade",
+    speakerNotes: [
+      "Recap the journey: six versions, from a working prototype to a production-grade AI experience inside Synergy.",
+      "Backend arc: LLM provider abstraction → annotation-driven tools → streaming → cooperative cancellation → Redis Streams. Each layer built on the last.",
+      "Frontend arc: flat message store → persistent conversations → streaming deltas → agent-controlled surfacing → full conversation management.",
+      "Key takeaway: iterative delivery with tight backend–frontend pairing at every stage — no big-bang releases.",
+    ],
+  },
 ];
 
 /* ── slides ───────────────────────────────────────────────────────────── */
+
+function TitleSlide() {
+  return (
+    <div className="h-full flex flex-col justify-center items-center text-center p-8">
+      <motion.h1
+        className="text-[clamp(36px,6vw,72px)] font-extrabold bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent leading-tight"
+        initial={{ opacity: 0, scale: 0.88, y: -24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      >
+        Synergy AI Mode
+      </motion.h1>
+      <FadeInUp
+        delay={0.25}
+        className="text-2xl text-[var(--muted)] max-w-3xl tracking-tight mt-4"
+      >
+        Building a Conversational AI Experience for the Synergy Analytics
+        Platform
+      </FadeInUp>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        {["Presight", "Microsoft ISE", "Agentic AI", "Streaming", "Multi-Agent"].map(
+          (tag, index) => (
+            <motion.span
+              key={tag}
+              className="rounded-full border border-white/25 bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/80"
+              initial={{ opacity: 0, scale: 0.6, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.35 + index * 0.08, duration: 0.4 }}
+            >
+              {tag}
+            </motion.span>
+          )
+        )}
+      </div>
+      <FadeInUp
+        delay={0.55}
+        className="mt-10 max-w-3xl text-sm text-[var(--muted)] leading-relaxed"
+      >
+        Six iterations of an agentic chat experience — from initial
+        infrastructure through streaming, tool frameworks, and cooperative
+        cancellation to a production-grade "chat with your data" product.
+      </FadeInUp>
+    </div>
+  );
+}
 
 function EngagementScopeSlide() {
   const deliverables = [
@@ -258,7 +322,7 @@ function EngagementScopeSlide() {
       <FadeInUp className="mb-6 text-center">
         <h2 className={gradientTitle}>Engagement Scope</h2>
         <p className="text-lg text-[var(--muted)] mt-3 max-w-3xl mx-auto">
-          Introduce an <strong className="text-white/90">AI Mode</strong> to
+          Introduce an <strong className="text-white/80">AI Mode</strong> to
           Synergy — a "chat with your data" experience powered by an agentic
           backend
         </p>
@@ -272,7 +336,7 @@ function EngagementScopeSlide() {
             className={`${surface} space-y-3`}
           >
             <div className="flex items-center gap-3">
-              <span className="rounded-full bg-fuchsia-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-fuchsia-300">
+              <span className="rounded-full bg-sky-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-300">
                 {i + 1}
               </span>
               <span className="text-lg font-semibold text-white">
@@ -285,8 +349,8 @@ function EngagementScopeSlide() {
       </div>
 
       <FadeInUp delay={0.55} className="mt-8 max-w-3xl mx-auto text-center">
-        <div className="rounded-xl border border-violet-400/20 bg-violet-500/10 px-5 py-3">
-          <p className="text-sm text-violet-200">
+        <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 px-5 py-3">
+          <p className="text-sm text-cyan-200">
             Built on top of Synergy's existing task execution framework —
             extending, not replacing
           </p>
@@ -300,24 +364,24 @@ function V1ArchitectureSlide() {
   const layers = [
     {
       label: "LLM Provider",
-      color: "violet",
+      color: "cyan",
       detail: "Vendor-abstracted LLM interface with provider registry — OpenAI implementation behind a clean strategy pattern",
     },
     {
       label: "Tool Framework",
-      color: "fuchsia",
+      color: "sky",
       detail:
         "Annotation-driven tool system — @ToolService classes with @Tool methods auto-register, generate JSON schemas, and resolve parameters at runtime",
     },
     {
       label: "Advisor Chain",
-      color: "pink",
+      color: "blue",
       detail:
         "Middleware pipeline for cross-cutting concerns — conversation memory, logging, and metrics as composable advisors",
     },
     {
       label: "Agent Loop",
-      color: "rose",
+      color: "slate",
       detail:
         "ReAct-style loop: send messages + tools to LLM, execute tool calls, append results, repeat until the model returns a final answer",
     },
@@ -333,10 +397,10 @@ function V1ArchitectureSlide() {
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/30 bg-violet-500/10 text-violet-300",
-    fuchsia: "border-fuchsia-400/30 bg-fuchsia-500/10 text-fuchsia-300",
-    pink: "border-pink-400/30 bg-pink-500/10 text-pink-300",
-    rose: "border-rose-400/30 bg-rose-500/10 text-rose-300",
+    cyan: "border-cyan-400/20 bg-cyan-500/10 text-cyan-300",
+    sky: "border-sky-400/20 bg-sky-500/10 text-sky-300",
+    blue: "border-blue-400/20 bg-blue-500/10 text-blue-300",
+    slate: "border-slate-400/20 bg-slate-500/10 text-slate-300",
   };
 
   return (
@@ -367,7 +431,7 @@ function V1ArchitectureSlide() {
                   {layer.label}
                 </span>
               </div>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <p className="text-xs text-white/55 leading-relaxed">
                 {layer.detail}
               </p>
             </motion.div>
@@ -387,7 +451,7 @@ function V1ArchitectureSlide() {
               transition={{ delay: 0.45 + i * 0.07 }}
               className="flex items-start gap-3"
             >
-              <code className="shrink-0 rounded-lg bg-fuchsia-500/15 px-2 py-0.5 text-xs text-fuchsia-200 font-mono">
+              <code className="shrink-0 rounded-lg bg-sky-500/20 px-2 py-0.5 text-xs text-sky-200 font-mono">
                 {tool.name}
               </code>
               <span className="text-xs text-white/55 leading-relaxed">
@@ -453,10 +517,10 @@ function V1FrontendSlide() {
           <div className="text-sm font-semibold text-white/80 uppercase tracking-wide mb-3">
             Turn Structure
           </div>
-          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-fuchsia-200/90 overflow-auto whitespace-pre">
+          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-sky-200/90 overflow-auto whitespace-pre">
             {turnDiagram}
           </pre>
-          <p className="text-xs text-white/50 mt-3 text-center">
+          <p className="text-xs text-white/30 mt-3 text-center">
             Each turn groups a user question + agent work + final answer
           </p>
         </ScalePop>
@@ -473,9 +537,9 @@ function V1FrontendSlide() {
                 duration: 0.5,
                 ease: "easeOut",
               }}
-              className="rounded-xl border border-violet-400/20 bg-violet-500/8 px-4 py-3"
+              className="rounded-xl border border-cyan-400/20 bg-cyan-500/8 px-4 py-3"
             >
-              <div className="font-semibold text-violet-200 text-sm mb-1">
+              <div className="font-semibold text-cyan-200 text-sm mb-1">
                 {p.label}
               </div>
               <p className="text-xs text-white/55 leading-relaxed">
@@ -504,44 +568,44 @@ function V2BackendSlide() {
       label: "Long Conversation Support",
       detail:
         "Async summarisation kicks in when the context window fills up — conversations no longer break after extended use",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Conversation-Level Shared Knowledge",
       detail:
         "Key facts extracted at the conversation level, bridging context separation between agents without breaking their individual boundaries",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Resilient LLM Calls",
       detail:
         "Automatic retry with exponential backoff for rate limits and transient failures — errors no longer crash the conversation",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Self-Describing Results",
       detail:
         "Structured data and profiles returned as typed, readable content — the agent can reason about its own query results",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Hardened Search",
       detail:
         "5-year default lookback, bounded result limits, and clear error messages so the agent can adapt when queries fail",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Conversation Management API",
       detail:
         "List, load, and rename conversations — plus async title generation and suggested follow-up questions",
-      color: "pink",
+      color: "blue",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -562,11 +626,11 @@ function V2BackendSlide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 + i * 0.06 }}
-              className="text-xs text-white/70"
+              className="text-xs text-white/30"
             >
               <span className="line-through text-white/30">{e.v1}</span>
-              <span className="mx-1.5 text-fuchsia-400">→</span>
-              <span className="text-fuchsia-200">{e.v2}</span>
+              <span className="mx-1.5 text-sky-400">→</span>
+              <span className="text-sky-200">{e.v2}</span>
             </motion.div>
           ))}
         </div>
@@ -608,38 +672,38 @@ function V2FrontendSlide() {
       label: "Persistent Conversations",
       detail:
         "Conversations become first-class entities — list, load, switch, and rename through a new ChatList dropdown",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Suggested Questions",
       detail:
         "Backend generates follow-up questions as a post-completion metadata task — rendered as clickable pills that auto-send",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Auto-Generated Titles",
       detail:
         "After the main response completes, a background task generates a 3–6 word conversation title",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Simplified Sub-Agent Detection",
       detail:
         "Mutable isSubAgent flag replaced with a stateless agentType check per message — cleaner, no shared state",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Outer Messages in Turns",
       detail:
         "Profiles and search results surface in the main chat area, not buried inside the collapsible thinking section",
-      color: "pink",
+      color: "blue",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -653,11 +717,11 @@ function V2FrontendSlide() {
 
       {/* Core refactor callout */}
       <FadeInUp delay={0.15} className="mb-4 max-w-5xl mx-auto w-full">
-        <div className="rounded-xl border border-fuchsia-400/25 bg-fuchsia-500/10 px-5 py-3 text-center">
-          <div className="text-sm font-semibold text-fuchsia-200 mb-1">
+        <div className="rounded-xl border border-sky-400/25 bg-sky-500/10 px-5 py-3 text-center">
+          <div className="text-sm font-semibold text-sky-200 mb-1">
             {coreRefactor.label}
           </div>
-          <p className="text-xs text-white/60 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-xs text-white/55 leading-relaxed max-w-2xl mx-auto">
             {coreRefactor.detail}
           </p>
         </div>
@@ -694,32 +758,32 @@ function V3BackendStreamingSlide() {
       label: "Real-Time Token Streaming",
       detail:
         "Agent loop streams LLM tokens as they arrive — StreamingUpdateHelper manages stable resultIds so the frontend accumulates chunks without duplication",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Provider-Level Streaming Overhaul",
       detail:
         "OpenAI streaming forwards content per-token instead of batching on a 500ms timer. Tool calls accumulated progressively with argument strings concatenated as deltas arrive",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Chart Generation Tool",
       detail:
         "774-line ChartGenerationTool calls a second LLM with the full TypeScript widget interface spec — produces a complete IWidgetConfig with a resultRef pointing to pre-computed query data",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Structured Result References",
       detail:
         "Results include YAML-formatted metadata with columns, operation IDs, and data sampling when results exceed ~3.5KB — gives the LLM structured context without blowing up the window",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -740,11 +804,11 @@ function V3BackendStreamingSlide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 + i * 0.06 }}
-              className="text-xs text-white/70"
+              className="text-xs text-white/30"
             >
               <span className="line-through text-white/30">{e.v2}</span>
-              <span className="mx-1.5 text-fuchsia-400">&rarr;</span>
-              <span className="text-fuchsia-200">{e.v3}</span>
+              <span className="mx-1.5 text-sky-400">&rarr;</span>
+              <span className="text-sky-200">{e.v3}</span>
             </motion.div>
           ))}
         </div>
@@ -780,32 +844,32 @@ function V3BackendFrameworkSlide() {
       label: "Annotation-Based Tools",
       detail:
         "@ToolMethod and @ToolParam annotations replace enum-based dispatch — AskTool went from 72 to 30 lines. Boilerplate dropped dramatically across all tools",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Richer Tool Schemas",
       detail:
         "@ToolParam supports array constraints (minItems, maxItems, itemDescription), generic type resolution fixed, and tools can return List<Result> directly",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Unified Context Building",
       detail:
         "ContextAdvisor now handles history loading, summary injection, AND shared knowledge injection. SharedKnowledgeAdvisor simplified to extraction-only",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Token Observability",
       detail:
         "New TokenLoggingAdvisor tracks input/output token counts across all LLM calls — first step toward cost tracking and optimisation",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -826,12 +890,12 @@ function V3BackendFrameworkSlide() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + i * 0.08 }}
-              className="rounded-lg border border-rose-400/20 bg-rose-500/8 px-4 py-2 flex items-start gap-3"
+              className="rounded-lg border border-slate-400/20 bg-slate-500/8 px-4 py-2 flex items-start gap-3"
             >
-              <span className="shrink-0 text-xs font-semibold text-rose-300 uppercase tracking-wide mt-0.5">Deleted</span>
+              <span className="shrink-0 text-xs font-semibold text-slate-300 uppercase tracking-wide mt-0.5">Deleted</span>
               <div>
                 <span className="text-sm font-semibold text-white/80">{c.name}</span>
-                <span className="text-xs text-white/50 ml-2">{c.detail}</span>
+                <span className="text-xs text-white/30 ml-2">{c.detail}</span>
               </div>
             </motion.div>
           ))}
@@ -862,32 +926,32 @@ function V3FrontendSlide() {
       label: "Streaming Delta Protocol",
       detail:
         "Messages arrive with resultId + delta flag — existing messages found by resultId get chunks appended. Array items replaced (not mutated) to trigger MobX reactivity",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Inline Chart Rendering",
       detail:
         "ChatChartWidget creates a widget store from the backend's widgetConfig + resultRef, auto-fetches pre-computed data, and renders any chart type inline",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Multi-Message Turns",
       detail:
         "Single assistantMessage slot replaced by outerMessages array — a turn can now hold a text response followed by a chart, or multiple responses",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Streaming Reasoning",
       detail:
         "Reasoning tokens stream in real-time alongside content — both use the same resultId-based delta protocol with independent accumulation",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -901,11 +965,11 @@ function V3FrontendSlide() {
 
       {/* Streaming pipeline callout */}
       <FadeInUp delay={0.15} className="mb-4 max-w-5xl mx-auto w-full">
-        <div className="rounded-xl border border-fuchsia-400/25 bg-fuchsia-500/10 px-5 py-3 text-center">
-          <div className="text-sm font-semibold text-fuchsia-200 mb-1">
+        <div className="rounded-xl border border-sky-400/25 bg-sky-500/10 px-5 py-3 text-center">
+          <div className="text-sm font-semibold text-sky-200 mb-1">
             End-to-End Streaming Pipeline
           </div>
-          <p className="text-xs text-white/60 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xs text-white/55 leading-relaxed max-w-3xl mx-auto">
             Backend streams per-token → WebSocket delivers deltas → chat store appends by resultId → UI re-renders incrementally
           </p>
         </div>
@@ -942,26 +1006,26 @@ function V4BackendCapabilitiesSlide() {
       label: "Explicit Result Surfacing",
       detail:
         "Results no longer auto-display — the agent decides what the user sees by calling surfaceResultTool with optional title and description",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Async Profile Search",
       detail:
         "Synchronous loop replaced with CompletableFuture.allOf() — parallel execution with 30-second timeout and cancellation support",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Rich Result Type Hierarchy",
       detail:
         "5 new result types (ProfileSet, SchemaDetails, Surface, ProgressMessage, OperationPreview) with BaseResultRef base class for flexible referencing",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -982,11 +1046,11 @@ function V4BackendCapabilitiesSlide() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.06 }}
-              className="rounded-lg border border-emerald-400/20 bg-emerald-500/8 px-3 py-2 text-center"
+              className="rounded-lg border border-teal-400/20 bg-teal-500/8 px-3 py-2 text-center"
             >
-              <div className="text-xs font-semibold text-emerald-200">{t.name}</div>
+              <div className="text-xs font-semibold text-teal-200">{t.name}</div>
               <div className="text-[10px] text-white/40 mt-0.5">{t.lines} lines</div>
-              <div className="text-[10px] text-white/50 mt-1">{t.purpose}</div>
+              <div className="text-[10px] text-white/30 mt-1">{t.purpose}</div>
             </motion.div>
           ))}
         </div>
@@ -1016,32 +1080,32 @@ function V4FrontendSlide() {
       label: "Schema Introspection Cards",
       detail:
         "New SchemaCard component renders schema details inline — two-column layout with metadata on the left and a scrollable field list on the right",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Explicit Result Surfacing",
       detail:
         "surfaceExistingResult() finds messages by resultId and creates surfaced duplicates — the surfaced flag controls whether results appear in thinking or the main chat",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Redesigned Thinking Section",
       detail:
         "Unified dark cards replace colored backgrounds — status icons (clock for in-progress, check for completed) with bold title line and expandable content",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Processing State & Progress",
       detail:
         "TurnMessage shows a 'Processing...' label and animated progress bar while the agent works — thinking section auto-expands during processing",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -1055,11 +1119,11 @@ function V4FrontendSlide() {
 
       {/* Paradigm shift callout */}
       <FadeInUp delay={0.15} className="mb-4 max-w-5xl mx-auto w-full">
-        <div className="rounded-xl border border-fuchsia-400/25 bg-fuchsia-500/10 px-5 py-3 text-center">
-          <div className="text-sm font-semibold text-fuchsia-200 mb-1">
+        <div className="rounded-xl border border-sky-400/25 bg-sky-500/10 px-5 py-3 text-center">
+          <div className="text-sm font-semibold text-sky-200 mb-1">
             From Auto-Display to Agent-Controlled Surfacing
           </div>
-          <p className="text-xs text-white/60 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xs text-white/55 leading-relaxed max-w-3xl mx-auto">
             Results live in the thinking section by default — only explicitly surfaced results appear in the main chat, giving the agent full control over the user experience
           </p>
         </div>
@@ -1097,32 +1161,32 @@ function V5BackendSlide() {
       label: "Tool Display Names",
       detail:
         "Every @ToolMethod gains a displayName annotation — 'Searching profiles', 'Creating chart'. A registry lookup feeds human-readable names to the frontend for live progress",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Race Condition Fix",
       detail:
         "Results now retrieved from the database (TaskOperationResultService) instead of in-memory PipelineContext — eliminates timing issues with context cleanup",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Sub-Agent Result Filtering",
       detail:
         "filterSubAgentResults() returns only ResultSurface objects + last assistant message — intermediate execution details no longer leak to the parent agent",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "New Message Tracking",
       detail:
         "initialMessageCount captured before chat session — only NEW messages returned to the caller, preventing old ResultSurface from reappearing in sub-agent calls",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -1143,11 +1207,11 @@ function V5BackendSlide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 + i * 0.06 }}
-              className="text-xs text-white/70"
+              className="text-xs text-white/30"
             >
               <span className="line-through text-white/30">{e.v4}</span>
-              <span className="mx-1.5 text-fuchsia-400">&rarr;</span>
-              <span className="text-fuchsia-200">{e.v5}</span>
+              <span className="mx-1.5 text-sky-400">&rarr;</span>
+              <span className="text-sky-200">{e.v5}</span>
             </motion.div>
           ))}
         </div>
@@ -1178,32 +1242,32 @@ function V5FrontendUXSlide() {
       label: "Pill-Shaped Chat Input",
       detail:
         "Rounded-full input field with a three-state adaptive button: Stop (processing), Send (has text), Mic (empty). Custom SVG icons replace Ant Design components",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Task Cancellation",
       detail:
         "cancelCurrentTask() with four reason types — user_initiated, new_prompt, navigation, timeout. Stop button in input, cleanup() on unmount prevents orphaned tasks",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Profile Set Cards",
       detail:
         "ProfileSetCard + ProfileSetList render profile sets inline in chat. Click opens the profile set in the case workspace via registerProfileSet callback",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Debug Mode",
       detail:
         "Cmd+Shift+D toggles coloured metadata badges on every message — role, agent type, resultId, toolCallId, turnId, surfaced direction",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -1217,7 +1281,7 @@ function V5FrontendUXSlide() {
 
       {/* Input state callout */}
       <FadeInUp delay={0.15} className="mb-4 max-w-5xl mx-auto w-full">
-        <div className="rounded-xl border border-fuchsia-400/25 bg-fuchsia-500/10 px-5 py-3">
+        <div className="rounded-xl border border-sky-400/25 bg-sky-500/10 px-5 py-3">
           <div className="flex items-center justify-center gap-8">
             {[
               { state: "Empty", icon: "Mic", desc: "Voice input" },
@@ -1231,13 +1295,13 @@ function V5FrontendUXSlide() {
                 transition={{ delay: 0.25 + i * 0.1 }}
                 className="text-center"
               >
-                <div className="text-sm font-semibold text-fuchsia-200">{s.icon}</div>
+                <div className="text-sm font-semibold text-sky-200">{s.icon}</div>
                 <div className="text-[10px] text-white/40 mt-0.5">{s.state}</div>
-                <div className="text-[10px] text-white/50">{s.desc}</div>
+                <div className="text-[10px] text-white/30">{s.desc}</div>
               </motion.div>
             ))}
           </div>
-          <p className="text-xs text-white/50 text-center mt-2">
+          <p className="text-xs text-white/30 text-center mt-2">
             Adaptive input button — three states, one control
           </p>
         </div>
@@ -1275,32 +1339,32 @@ function V5FrontendArchitectureSlide() {
       label: "processMessageUpdate Rewrite",
       detail:
         "Flat loop over results with agent-aware routing (isChatAgent flag). chatAgentSurfaceToolCalls Set tracks surface calls, paired tool_result + widget messages in a unified streaming pattern",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Server as Source of Truth",
       detail:
         "onTaskFinished reloads full chat history from the server instead of processing results inline — currentReply and currentReplyProgress observables deleted entirely",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Directional Surfacing Model",
       detail:
         "surfacedToOuter (chat agent → main chat) and surfacedToInner (sub-agent → thinking section) replace the old boolean — precise control over where each result appears",
-      color: "pink",
+      color: "blue",
     },
     {
       label: "Simplified Turn Grouping",
       detail:
         "chatTurns becomes single-pass grouping — no role-priority sorting, no messageToTurnId map. New profile_set message role and fields: toolCallId, profileSets, agentType",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -1321,11 +1385,11 @@ function V5FrontendArchitectureSlide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 + i * 0.06 }}
-              className="text-xs text-white/70"
+              className="text-xs text-white/30"
             >
               <span className="line-through text-white/30">{e.v4}</span>
-              <span className="mx-1.5 text-fuchsia-400">&rarr;</span>
-              <span className="text-fuchsia-200">{e.v5}</span>
+              <span className="mx-1.5 text-sky-400">&rarr;</span>
+              <span className="text-sky-200">{e.v5}</span>
             </motion.div>
           ))}
         </div>
@@ -1361,26 +1425,26 @@ function V6BackendSlide() {
       label: "Cooperative Cancellation Framework",
       detail:
         "AtomicBoolean signal threads from task executor → agent loop → AI client → streaming consumers. Checks before each LLM call, before/after each tool call. Sub-tasks tracked and cancelled on parent cancellation",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Streaming Cancellation",
       detail:
         "Content and reasoning consumers wrapped to throw CancellationException on next token. 10-minute CompletableFuture timeout as safety net. CancellationException is non-retryable — returns immediately",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Conversation Pin & Delete",
       detail:
         "New REST endpoints with audit logging — toggle pin state and delete conversations. Pinned column with DB migration, cache invalidation on toggle",
-      color: "violet",
+      color: "cyan",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -1401,11 +1465,11 @@ function V6BackendSlide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 + i * 0.06 }}
-              className="text-xs text-white/70"
+              className="text-xs text-white/30"
             >
               <span className="line-through text-white/30">{e.v5}</span>
-              <span className="mx-1.5 text-fuchsia-400">&rarr;</span>
-              <span className="text-fuchsia-200">{e.v6}</span>
+              <span className="mx-1.5 text-sky-400">&rarr;</span>
+              <span className="text-sky-200">{e.v6}</span>
             </motion.div>
           ))}
         </div>
@@ -1435,26 +1499,26 @@ function V6FrontendSlide() {
       label: "Chat History Panel",
       detail:
         "348-line ChatHistoryDialog replaces the 122-line dropdown. Side panel with search, pinned 'Important' section and chronological 'Recent' section, relative timestamps, and right-click context menus",
-      color: "violet",
+      color: "cyan",
     },
     {
       label: "Conversation Management",
       detail:
         "Context menu with pin/unpin, rename, and delete — each with confirmation modals. Delete removes from list and starts new chat if active. Pin toggles via backend API",
-      color: "fuchsia",
+      color: "sky",
     },
     {
       label: "Redesigned Toolbar",
       detail:
         "Dropdown-based chat list replaced by icon buttons — New Chat, Chat History toggle, and Close. Custom SVG icons with themed hover states and active indicators",
-      color: "pink",
+      color: "blue",
     },
   ];
 
   const colorMap: Record<string, string> = {
-    violet: "border-violet-400/20 bg-violet-500/8",
-    fuchsia: "border-fuchsia-400/20 bg-fuchsia-500/8",
-    pink: "border-pink-400/20 bg-pink-500/8",
+    cyan: "border-cyan-400/20 bg-cyan-500/8",
+    sky: "border-sky-400/20 bg-sky-500/8",
+    blue: "border-blue-400/20 bg-blue-500/8",
   };
 
   return (
@@ -1468,11 +1532,11 @@ function V6FrontendSlide() {
 
       {/* Paradigm callout */}
       <FadeInUp delay={0.15} className="mb-4 max-w-5xl mx-auto w-full">
-        <div className="rounded-xl border border-fuchsia-400/25 bg-fuchsia-500/10 px-5 py-3 text-center">
-          <div className="text-sm font-semibold text-fuchsia-200 mb-1">
+        <div className="rounded-xl border border-sky-400/25 bg-sky-500/10 px-5 py-3 text-center">
+          <div className="text-sm font-semibold text-sky-200 mb-1">
             From Dropdown to Side Panel
           </div>
-          <p className="text-xs text-white/60 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xs text-white/55 leading-relaxed max-w-3xl mx-auto">
             Conversation switching moves from a compact dropdown to a persistent, searchable history panel
             with pinned conversations and right-click context menus
           </p>
@@ -1497,9 +1561,94 @@ function V6FrontendSlide() {
   );
 }
 
+function SummarySlide() {
+  const tracks = [
+    {
+      title: "Backend Journey",
+      milestones: [
+        { version: "V1", label: "Agentic infrastructure + tool framework" },
+        { version: "V2", label: "Summarisation, shared knowledge, resilience" },
+        { version: "V3", label: "Per-token streaming + chart generation" },
+        { version: "V4", label: "Agent-controlled surfacing + new tools" },
+        { version: "V5", label: "Display names, race fixes, sub-agent filtering" },
+        { version: "V6", label: "Cooperative cancellation + Redis Streams" },
+      ],
+      gradient: "from-cyan-400 to-sky-500",
+    },
+    {
+      title: "Frontend Journey",
+      milestones: [
+        { version: "V1", label: "Turn-based chat with sub-agent support" },
+        { version: "V2", label: "Persistent conversations + history replay" },
+        { version: "V3", label: "Streaming deltas + inline chart rendering" },
+        { version: "V4", label: "Schema cards + result surfacing redesign" },
+        { version: "V5", label: "Cancellation, debug mode, architecture rewrite" },
+        { version: "V6", label: "Chat history panel + conversation management" },
+      ],
+      gradient: "from-sky-400 to-blue-500",
+    },
+  ];
+
+  return (
+    <div className="h-full px-8 py-6 flex flex-col justify-center">
+      <FadeInUp className="mb-6 text-center">
+        <h2 className={gradientTitle}>Summary</h2>
+        <p className="text-lg text-[var(--muted)] mt-3 max-w-3xl mx-auto">
+          Six versions — from working prototype to production-grade AI
+          experience
+        </p>
+      </FadeInUp>
+
+      <div className="grid gap-6 lg:grid-cols-2 max-w-6xl mx-auto">
+        {tracks.map((track, trackIdx) => (
+          <ScalePop
+            key={track.title}
+            delay={0.2 + trackIdx * 0.12}
+            className={`${surface} space-y-3`}
+          >
+            <h3
+              className={`text-lg font-bold bg-gradient-to-r ${track.gradient} bg-clip-text text-transparent`}
+            >
+              {track.title}
+            </h3>
+            <div className="space-y-2">
+              {track.milestones.map((m, i) => (
+                <motion.div
+                  key={m.version}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 + trackIdx * 0.12 + i * 0.06 }}
+                  className="flex items-start gap-3"
+                >
+                  <span className="shrink-0 rounded-md bg-sky-500/20 px-2 py-0.5 text-xs font-semibold text-sky-300">
+                    {m.version}
+                  </span>
+                  <span className="text-xs text-white/55 leading-relaxed">
+                    {m.label}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </ScalePop>
+        ))}
+      </div>
+
+      <FadeInUp delay={0.7} className="mt-6 max-w-3xl mx-auto text-center">
+        <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 px-5 py-3">
+          <p className="text-sm text-cyan-200">
+            Iterative delivery with tight backend–frontend pairing at every
+            stage — no big-bang releases
+          </p>
+        </div>
+      </FadeInUp>
+    </div>
+  );
+}
+
 /* ── slide map & deck component ──────────────────────────────────────── */
 
 const slideMap: Record<string, React.ReactNode> = {
+  "title": <TitleSlide />,
   "engagement-scope": <EngagementScopeSlide />,
   "v1-architecture": <V1ArchitectureSlide />,
   "v1-frontend": <V1FrontendSlide />,
@@ -1515,6 +1664,7 @@ const slideMap: Record<string, React.ReactNode> = {
   "v5-frontend-architecture": <V5FrontendArchitectureSlide />,
   "v6-backend": <V6BackendSlide />,
   "v6-frontend": <V6FrontendSlide />,
+  "summary": <SummarySlide />,
 };
 
 export default function SynergyAIModeDeck({ slide }: DeckComponentProps) {
