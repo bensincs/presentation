@@ -15,18 +15,20 @@ export const multiAgentCoordinationSlides: SlideMeta[] = [
     id: "title",
     transition: "fade",
     speakerNotes: [
-      "Open by framing the problem: multi-agent coordination is fundamentally about shared state, dynamic routing, and control.",
-      "Preview the three patterns: selective memory, dynamic facilitation, deterministic moderation.",
-      "Set expectations: these are architectural primitives, not framework-specific solutions.",
+      "Open by framing the talk: multi-agent coordination is the hot topic, but there's a gap nobody's addressing.",
+      "Customers keep asking for the same thing -- agents that coordinate across deployment boundaries.",
+      "This talk covers the four architectural patterns that make that possible.",
     ],
   },
   {
-    id: "three-challenges",
+    id: "four-challenges",
     transition: "slide",
     speakerNotes: [
-      "Context overload: agents drown in irrelevant information.",
-      "Static routing: conversations can't adapt to what agents actually need.",
-      "Uncontrolled output: without enforcement, agents talk over each other.",
+      "To coordinate agents across boundaries, you need to solve four fundamental problems.",
+      "Context overload: agents drown in irrelevant information -- worse when they're distributed.",
+      "Static routing: conversations can't adapt to what agents actually need -- especially when agents come and go across environments.",
+      "Uncontrolled output: without enforcement, agents talk over each other -- and you can't rely on a shared process to keep order.",
+      "Deployment boundaries: agents need to run on-prem, in the cloud, at the edge -- and still coordinate as one system.",
     ],
   },
   {
@@ -84,12 +86,32 @@ export const multiAgentCoordinationSlides: SlideMeta[] = [
     ],
   },
   {
-    id: "three-patterns",
+    id: "challenge-4-problem",
+    transition: "slide",
+    speakerNotes: [
+      "Challenge 4: Deployment Boundaries.",
+      "Organisations don't run everything in one place. Sensitive data stays on-prem, compute scales in the cloud, devices sit at the edge.",
+      "Every multi-agent framework today assumes co-location -- all agents in the same process or cluster.",
+      "That's a fundamental mismatch with how organisations actually deploy.",
+    ],
+  },
+  {
+    id: "challenge-4-insight",
+    transition: "scale",
+    speakerNotes: [
+      "Insight: Coordinate over a protocol, not a framework.",
+      "If agents communicate via a lightweight pub/sub protocol like MQTT, they don't need to share a process, a runtime, or even a network.",
+      "They just need a broker connection. The protocol is the coordination layer.",
+    ],
+  },
+  {
+    id: "four-patterns",
     transition: "slide",
     speakerNotes: [
       "Pattern 1: Selective Memory—agents curate their own context from shared state.",
       "Pattern 2: Dynamic Facilitation—agents register interest, facilitator routes accordingly.",
       "Pattern 3: Deterministic Moderation—enforce turn-taking and limits with code, not prompts.",
+      "Pattern 4: Protocol-Based Coordination—use pub/sub so agents can deploy anywhere and still coordinate.",
     ],
   },
   {
@@ -174,12 +196,41 @@ export const multiAgentCoordinationSlides: SlideMeta[] = [
     ],
   },
   {
+    id: "protocol-coordination",
+    transition: "slide",
+    speakerNotes: [
+      "Pattern 4: Protocol-Based Coordination.",
+      "MQTT is the coordination layer — lightweight, reliable, works over any network.",
+      "Agents connect to a broker, subscribe to topics, publish messages. That's it.",
+      "No shared runtime, no framework lock-in, no co-location requirement.",
+    ],
+  },
+  {
+    id: "protocol-coordination-how",
+    transition: "slide",
+    speakerNotes: [
+      "Walk through the deployment topology: on-prem agents behind firewalls, cloud agents scaling elastically, edge agents on constrained devices.",
+      "All connected through MQTT broker bridging.",
+      "The other three patterns — selective memory, dynamic facilitation, deterministic moderation — all work identically regardless of where agents are deployed.",
+    ],
+  },
+  {
+    id: "protocol-coordination-impl",
+    transition: "slide",
+    speakerNotes: [
+      "In Agent Ops Room: agents just need an MQTT broker URL to participate.",
+      "MQTT supports bridging across network boundaries — on-prem broker bridges to cloud broker.",
+      "Agents are polyglot — Rust, Python, TypeScript — any language with an MQTT client can join.",
+      "This is how IoT has coordinated devices across boundaries for years. Same proven infrastructure.",
+    ],
+  },
+  {
     id: "patterns-together",
     transition: "slide",
     speakerNotes: [
-      "These three patterns compose: shared state + facilitation + moderation.",
-      "Agents remember what matters, get routed dynamically, speak when permitted.",
-      "The result is coordinated multi-agent behavior without central orchestration.",
+      "These four patterns compose: shared state + facilitation + moderation + protocol-based coordination.",
+      "Agents remember what matters, get routed dynamically, speak when permitted — across any deployment boundary.",
+      "The result is coordinated multi-agent behavior without central orchestration and without co-location.",
     ],
   },
   {
@@ -189,23 +240,26 @@ export const multiAgentCoordinationSlides: SlideMeta[] = [
       "Selective memory prevents context overload.",
       "Dynamic facilitation enables adaptive routing.",
       "Deterministic moderation ensures controlled output.",
+      "Protocol-based coordination means these patterns work across on-prem, cloud, and edge—no co-location required.",
     ],
   },
   {
     id: "mental-model",
     transition: "scale",
     speakerNotes: [
-      "Mental model: a meeting room with a whiteboard, a facilitator, and speaking rules.",
+      "Mental model: a meeting room with a whiteboard, a facilitator, speaking rules, and open doors.",
       "Everyone can see the whiteboard (shared state), take their own notes (selective memory).",
       "The facilitator calls on people (dynamic routing), enforces time limits (moderation).",
+      "And the room has open doors — participants can join from anywhere (protocol-based coordination).",
     ],
   },
   {
     id: "prototype",
     transition: "slide",
     speakerNotes: [
-      "Agent Ops Room implements all three patterns.",
+      "Agent Ops Room implements all four patterns.",
       "Built with Rust and MQTT for performance and reliability.",
+      "MQTT gives us cross-boundary deployment — agents can run on-prem, in Azure, at the edge, wherever they need to be.",
       "Open source—explore the code and contribute.",
     ],
   },
@@ -213,9 +267,9 @@ export const multiAgentCoordinationSlides: SlideMeta[] = [
     id: "questions",
     transition: "fade",
     speakerNotes: [
-      "Recap: Selective Memory, Dynamic Facilitation, Deterministic Moderation.",
-      "These are infrastructure patterns, not framework features.",
-      "Architecture over prompts—code you can trust.",
+      "Recap: Selective Memory, Dynamic Facilitation, Deterministic Moderation, Protocol-Based Coordination.",
+      "Four patterns that solve the customer problem: multi-agent systems that work across deployment boundaries.",
+      "These are infrastructure patterns, not framework features. Architecture over prompts.",
     ],
   },
 ];
@@ -343,7 +397,8 @@ function TitleSlide() {
       >
         Three architectural patterns that let agents curate their own context,
         enable adaptive task routing, and enforce conversation control through
-        code—not prompts.
+        code—not prompts. And because they're built on pub/sub, they work across
+        deployment boundaries—on-prem, cloud, edge, and everything in between.
       </FadeInUp>
     </div>
   );
@@ -624,41 +679,141 @@ function Challenge3InsightSlide() {
   );
 }
 
-function ThreeChallengesSlide() {
+function Challenge4ProblemSlide() {
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeInUp className="mb-8 text-center">
+        <span className={pill}>Challenge 4</span>
+        <h2 className={`${gradientTitle} mt-2`}>Deployment Boundaries</h2>
+        <p className="text-xl text-[var(--muted)] mt-2">
+          Agents Need to Run Where the Work Is
+        </p>
+      </FadeInUp>
+      <ScalePop
+        delay={0.2}
+        className={`${surface} max-w-4xl mx-auto space-y-6`}
+      >
+        <p className="text-lg text-white/90">
+          Organisations don't run everything in one place, but{" "}
+          <span className="text-amber-400 font-semibold">
+            every multi-agent framework assumes they do
+          </span>
+          :
+        </p>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            {
+              icon: "🏢",
+              title: "On-Prem Data",
+              desc: "Sensitive data that can't leave the network — compliance, PII, trade secrets",
+            },
+            {
+              icon: "☁️",
+              title: "Cloud Scale",
+              desc: "Elastic compute, managed AI services, global availability",
+            },
+            {
+              icon: "📡",
+              title: "Edge Devices",
+              desc: "Factory floors, retail locations, vehicles, remote sites",
+            },
+          ].map((env, i) => (
+            <FadeInUp
+              key={env.title}
+              delay={0.3 + i * 0.1}
+              className="rounded-xl border border-white/10 bg-white/5 p-4"
+            >
+              <span className="text-2xl">{env.icon}</span>
+              <div className="mt-2 font-semibold text-white">{env.title}</div>
+              <p className={mutedText}>{env.desc}</p>
+            </FadeInUp>
+          ))}
+        </div>
+        <div className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-4 mt-4">
+          <span className="text-lg">🔒</span>
+          <span className="ml-2 text-rose-200 font-medium">
+            The Issue: Framework-based coordination requires{" "}
+            <strong>co-location</strong>. All agents in one process, one
+            cluster, one cloud. That doesn't match reality.
+          </span>
+        </div>
+      </ScalePop>
+    </div>
+  );
+}
+
+function Challenge4InsightSlide() {
+  return (
+    <div className="h-full p-8 flex flex-col justify-center items-center text-center">
+      <FadeInUp className="mb-6">
+        <span className={pill}>Challenge 4 → Insight</span>
+      </FadeInUp>
+      <ScalePop delay={0.2} className="max-w-3xl">
+        <h2 className="text-4xl font-bold text-white leading-tight">
+          What if agents coordinated over a{" "}
+          <span className="text-amber-400">protocol</span> instead of a{" "}
+          <span className="text-amber-400">framework</span>?
+        </h2>
+      </ScalePop>
+      <FadeInUp delay={0.4} className="mt-8">
+        <p className="text-xl text-[var(--muted)]">
+          Don't force co-location—let agents connect from wherever they're
+          deployed.
+        </p>
+      </FadeInUp>
+      <ScalePop delay={0.6} className="mt-12">
+        <div className="inline-block rounded-xl border border-amber-400/40 bg-amber-500/15 px-8 py-4">
+          <span className="text-2xl font-semibold text-amber-200">
+            → Protocol-Based Coordination
+          </span>
+        </div>
+      </ScalePop>
+    </div>
+  );
+}
+
+function FourChallengesSlide() {
   const challenges = [
     {
       icon: "🧠",
       title: "Context Overload",
       impact:
-        "Agents can't process everything—they need to choose what matters",
-      color: "cyan",
+        "Distributed agents can't share a single context window—they need to choose what matters",
     },
     {
       icon: "🎯",
       title: "Static Routing",
       impact:
-        "Conversations evolve—routing needs to adapt to agent capabilities in real-time",
-      color: "violet",
+        "Agents come and go across environments—routing must adapt to who's available right now",
     },
     {
       icon: "🔊",
       title: "Output Chaos",
       impact:
-        "Without enforcement, agents talk over each other or ignore instructions",
-      color: "rose",
+        "Without a shared process to keep order, agents talk over each other across boundaries",
+    },
+    {
+      icon: "🌍",
+      title: "Deployment Boundaries",
+      impact:
+        "Agents need to run on-prem, in the cloud, and at the edge—but frameworks assume co-location",
     },
   ];
 
   return (
     <div className="h-full p-8 flex flex-col justify-center">
       <FadeInUp className="mb-8 text-center">
-        <h2 className={gradientTitle}>Three Core Challenges</h2>
+        <h2 className={gradientTitle}>Four Challenges to Solve</h2>
+        <p className="text-lg text-[var(--muted)] mt-2">
+          Coordinating agents across boundaries requires architectural
+          primitives for each of these problems
+        </p>
       </FadeInUp>
-      <div className="grid gap-6 lg:grid-cols-3 max-w-5xl mx-auto">
+      <div className="grid gap-5 lg:grid-cols-4 max-w-6xl mx-auto">
         {challenges.map((challenge, index) => (
           <ScalePop
             key={challenge.title}
-            delay={0.2 + index * 0.12}
+            delay={0.2 + index * 0.1}
             className={`${surface} space-y-4`}
           >
             <div className="flex items-center gap-3">
@@ -678,44 +833,47 @@ function ThreeChallengesSlide() {
   );
 }
 
-function ThreePatternsSlide() {
+function FourPatternsSlide() {
   const patterns = [
     {
       num: "1",
       title: "Selective Memory",
       subtitle: "Agents curate their own context",
       icon: "🧠",
-      color: "cyan",
     },
     {
       num: "2",
       title: "Dynamic Facilitation",
       subtitle: "Interest-based routing",
       icon: "🎯",
-      color: "violet",
     },
     {
       num: "3",
       title: "Deterministic Moderation",
       subtitle: "Code-enforced control",
       icon: "⚡",
-      color: "fuchsia",
+    },
+    {
+      num: "4",
+      title: "Protocol-Based Coordination",
+      subtitle: "Deploy anywhere, coordinate everywhere",
+      icon: "🌍",
     },
   ];
 
   return (
     <div className="h-full p-8 flex flex-col justify-center items-center">
       <FadeInUp className="mb-10 text-center">
-        <h2 className={gradientTitle}>Three Patterns</h2>
+        <h2 className={gradientTitle}>Four Patterns</h2>
         <p className="text-xl text-[var(--muted)] mt-2">
           Architectural Primitives for Multi-Agent Coordination
         </p>
       </FadeInUp>
-      <div className="grid gap-6 md:grid-cols-3 max-w-5xl">
+      <div className="grid gap-5 md:grid-cols-4 max-w-6xl">
         {patterns.map((pattern, index) => (
           <ScalePop
             key={pattern.title}
-            delay={0.2 + index * 0.15}
+            delay={0.2 + index * 0.12}
             className={`${surface} text-center space-y-3 hover:border-white/20 transition-colors`}
           >
             <div className="text-4xl">{pattern.icon}</div>
@@ -1313,16 +1471,221 @@ pub fn validate(&mut self, agent_id, task_id, msg_type, ts)
   );
 }
 
+function ProtocolCoordinationSlide() {
+  const diagram = `┌──────────────────────────────────────────────────────────┐
+│                     MQTT Broker                          │
+│              (Cloud / Self-Hosted / Bridged)             │
+└──┬──────────┬──────────────┬──────────────┬──────────────┘
+   │          │              │              │
+   ▼          ▼              ▼              ▼
+┌──────┐  ┌──────┐    ┌──────────┐   ┌───────────┐
+│On-Prem│  │Azure │    │   Edge   │   │  Another  │
+│Server │  │Cloud │    │ Device   │   │  Cloud    │
+│       │  │      │    │          │   │  (AWS/GCP)│
+│ Agent │  │ Agent│    │ Agent    │   │  Agent    │
+│  A    │  │  B   │    │  C       │   │  D        │
+│       │  │      │    │          │   │           │
+│finance│  │search│    │ sensors  │   │ analytics │
+└──────┘  └──────┘    └──────────┘   └───────────┘
+ 🔒 VPN     ☁️ PaaS    📡 Cellular    ☁️ Multi-cloud`;
+
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeInUp className="mb-6 text-center">
+        <span className={pill}>Pattern 4</span>
+        <h2 className={`${gradientTitle} mt-2`}>Protocol-Based Coordination</h2>
+        <p className="text-lg text-[var(--muted)] mt-2">
+          Coordinate Over a Protocol, Not a Framework
+        </p>
+      </FadeInUp>
+      <div className="grid gap-6 lg:grid-cols-2 max-w-6xl mx-auto">
+        <SlideInLeft delay={0.2} className={`${surface} space-y-4`}>
+          <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4">
+            <div className="font-semibold text-amber-200 mb-2">The Idea</div>
+            <p className={mutedText}>
+              Use a{" "}
+              <strong className="text-white">
+                lightweight pub/sub protocol (MQTT)
+              </strong>{" "}
+              as the coordination layer. Agents don't need to share a process, a
+              runtime, a cluster, or even a network.
+            </p>
+          </div>
+          <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4">
+            <div className="font-semibold text-emerald-200 mb-2">
+              The Pattern
+            </div>
+            <p className={mutedText}>
+              Agents connect to a broker, subscribe to topics, publish messages.
+              The broker handles delivery across any network topology.{" "}
+              <strong>That's the entire coordination contract.</strong>
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <span className="text-sm text-white/60">Key difference:</span>
+            <p className={`${mutedText} mt-1`}>
+              Framework-based coordination requires co-location.
+              Protocol-based coordination does not.
+            </p>
+          </div>
+        </SlideInLeft>
+        <SlideInRight delay={0.3} className={`${surface}`}>
+          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-amber-200/90 overflow-auto whitespace-pre">
+            {diagram}
+          </pre>
+        </SlideInRight>
+      </div>
+    </div>
+  );
+}
+
+function ProtocolCoordinationHowSlide() {
+  const environments = [
+    {
+      icon: "🏢",
+      title: "On-Premises",
+      desc: "Sensitive data stays behind your firewall. Agent connects to local broker, which bridges to the cloud.",
+    },
+    {
+      icon: "☁️",
+      title: "Cloud",
+      desc: "Elastic compute and managed AI services. Agents scale horizontally, broker handles routing.",
+    },
+    {
+      icon: "📡",
+      title: "Edge / IoT",
+      desc: "Lightweight agents on constrained devices. MQTT was designed for exactly this — low bandwidth, intermittent connectivity.",
+    },
+    {
+      icon: "🌍",
+      title: "Hybrid / Multi-Cloud",
+      desc: "Mix and match freely. Broker bridging connects any topology into one coordination space.",
+    },
+  ];
+
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeInUp className="mb-8 text-center">
+        <span className={pill}>Pattern 4</span>
+        <h2 className={`${gradientTitle} mt-2`}>How It Works</h2>
+        <p className="text-lg text-[var(--muted)] mt-2">
+          Agents Deploy Anywhere, Coordinate Everywhere
+        </p>
+      </FadeInUp>
+      <div className="grid gap-5 lg:grid-cols-4 max-w-6xl mx-auto">
+        {environments.map((env, i) => (
+          <ScalePop
+            key={env.title}
+            delay={0.2 + i * 0.1}
+            className={`${surface} space-y-3`}
+          >
+            <div className="text-3xl">{env.icon}</div>
+            <div className="font-semibold text-white">{env.title}</div>
+            <p className={mutedText}>{env.desc}</p>
+          </ScalePop>
+        ))}
+      </div>
+      <FadeInUp delay={0.6} className="mt-8 text-center">
+        <div className="inline-block rounded-xl border border-amber-400/40 bg-amber-500/15 px-6 py-3">
+          <span className="text-lg font-semibold text-amber-200">
+            The other three patterns — selective memory, dynamic facilitation,
+            deterministic moderation — all work identically across every
+            boundary.
+          </span>
+        </div>
+      </FadeInUp>
+    </div>
+  );
+}
+
+function ProtocolCoordinationImplSlide() {
+  const codeSnippet = `// Any agent, any language, any location — just needs a broker URL
+let mqtt_opts = MqttOptions::new(agent_id, broker_url, port);
+let (client, eventloop) = AsyncClient::new(mqtt_opts, 10);
+
+// Subscribe to room topics — same API everywhere
+client.subscribe(
+    format!("rooms/{}/public", room_id),
+    QoS::AtLeastOnce
+).await?;
+
+// Publish messages — broker handles cross-boundary delivery
+client.publish(
+    format!("rooms/{}/public_candidates", room_id),
+    QoS::AtLeastOnce,
+    false,
+    payload
+).await?;
+
+// Heartbeats work across boundaries too
+client.publish(
+    format!("rooms/{}/agents/{}/heartbeat", room_id, agent_id),
+    QoS::AtLeastOnce,
+    false,
+    heartbeat_payload
+).await?;`;
+
+  return (
+    <div className="h-full p-8 flex flex-col justify-center">
+      <FadeInUp className="mb-6 text-center">
+        <span className={pill}>Pattern 4 Implementation</span>
+        <h2 className={`${gradientTitle} mt-2`}>Agent Ops Room</h2>
+        <p className="text-lg text-[var(--muted)] mt-2">
+          MQTT Broker + Bridging + Polyglot Agents
+        </p>
+      </FadeInUp>
+      <div className="grid gap-6 lg:grid-cols-2 max-w-6xl mx-auto">
+        <SlideInLeft delay={0.2} className={`${surface} space-y-4`}>
+          <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4">
+            <div className="font-semibold text-amber-200 mb-2">
+              Single Connection Contract
+            </div>
+            <p className={mutedText}>
+              Agents just need a broker URL to participate. No SDK, no framework
+              dependency — any language with an MQTT client can join.
+            </p>
+          </div>
+          <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4">
+            <div className="font-semibold text-emerald-200 mb-2">
+              Broker Bridging
+            </div>
+            <p className={mutedText}>
+              On-prem broker bridges to cloud broker. Edge broker bridges
+              upstream. Agents don't need to know the topology — the brokers
+              handle it.
+            </p>
+          </div>
+          <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 p-4">
+            <div className="font-semibold text-cyan-200 mb-2">
+              Proven Infrastructure
+            </div>
+            <p className={mutedText}>
+              This is how IoT has coordinated devices across boundaries for
+              years. Same proven infrastructure, applied to agent coordination.
+            </p>
+          </div>
+        </SlideInLeft>
+        <SlideInRight delay={0.3} className={`${surface}`}>
+          <pre className="rounded-xl bg-black/40 px-4 py-3 text-left text-xs font-mono text-amber-200/90 overflow-auto whitespace-pre">
+            {codeSnippet}
+          </pre>
+        </SlideInRight>
+      </div>
+    </div>
+  );
+}
+
 function PatternTogetherSlide() {
   return (
     <div className="h-full p-8 flex flex-col justify-center">
       <FadeInUp className="mb-8 text-center">
-        <h2 className={gradientTitle}>Patterns Working Together</h2>
+        <h2 className={gradientTitle}>Four Patterns Working Together</h2>
         <p className="text-xl text-[var(--muted)] mt-2">
-          Selective Memory + Dynamic Facilitation + Deterministic Moderation
+          Selective Memory + Dynamic Facilitation + Deterministic Moderation +
+          Protocol-Based Coordination
         </p>
       </FadeInUp>
-      <div className="grid gap-6 lg:grid-cols-3 max-w-5xl mx-auto">
+      <div className="grid gap-5 lg:grid-cols-4 max-w-6xl mx-auto">
         <ScalePop delay={0.2} className={`${surface} space-y-4`}>
           <div className="text-3xl">🧠</div>
           <div className="font-semibold text-cyan-300">Selective Memory</div>
@@ -1357,12 +1720,24 @@ function PatternTogetherSlide() {
             → Ensures controlled output
           </div>
         </ScalePop>
+        <ScalePop delay={0.5} className={`${surface} space-y-4`}>
+          <div className="text-3xl">🌍</div>
+          <div className="font-semibold text-amber-300">
+            Protocol-Based Coordination
+          </div>
+          <p className={mutedText}>
+            Agents connect from anywhere via MQTT — no co-location required.
+          </p>
+          <div className="text-xs text-white/50 mt-2">
+            → Crosses deployment boundaries
+          </div>
+        </ScalePop>
       </div>
-      <FadeInUp delay={0.5} className="mt-8 text-center">
+      <FadeInUp delay={0.6} className="mt-8 text-center">
         <div className="inline-block rounded-xl border border-white/20 bg-white/5 px-6 py-3">
           <span className="text-lg font-semibold text-white/90">
             The result: coordinated multi-agent behavior without central
-            orchestration.
+            orchestration and without co-location.
           </span>
         </div>
       </FadeInUp>
@@ -1388,9 +1763,9 @@ function WhyMattersSlide() {
       outcome: "Code-enforced speaking rules",
     },
     {
-      challenge: "Central bottleneck",
-      pattern: "All three",
-      outcome: "Decentralized, self-organizing coordination",
+      challenge: "Deployment boundaries",
+      pattern: "Protocol-Based Coordination",
+      outcome: "Agents deploy anywhere: on-prem, cloud, edge",
     },
   ];
 
@@ -1447,20 +1822,21 @@ function MentalModelSlide() {
       <FadeInUp className="mb-8">
         <h2 className={gradientTitle}>The Mental Model</h2>
       </FadeInUp>
-      <ScalePop delay={0.2} className={`${surface} max-w-3xl`}>
+      <ScalePop delay={0.2} className={`${surface} max-w-4xl`}>
         <blockquote className="text-2xl text-white/90 font-medium leading-relaxed">
           "A meeting room with a{" "}
           <span className="text-cyan-400">whiteboard</span>, a{" "}
-          <span className="text-violet-400">facilitator</span>, and{" "}
-          <span className="text-fuchsia-400">speaking rules</span>."
+          <span className="text-violet-400">facilitator</span>,{" "}
+          <span className="text-fuchsia-400">speaking rules</span>, and{" "}
+          <span className="text-amber-400">open doors</span>."
         </blockquote>
       </ScalePop>
-      <div className="mt-10 grid gap-4 md:grid-cols-3 max-w-4xl">
+      <div className="mt-10 grid gap-4 md:grid-cols-4 max-w-5xl">
         {[
           {
             icon: "📋",
             label: "Whiteboard",
-            desc: "Shared state everyone can see",
+            desc: "Shared state everyone can see, personal notes for each",
             color: "cyan",
           },
           {
@@ -1474,6 +1850,12 @@ function MentalModelSlide() {
             label: "Speaking Rules",
             desc: "Enforced time limits and turn-taking",
             color: "fuchsia",
+          },
+          {
+            icon: "🚪",
+            label: "Open Doors",
+            desc: "Participants join from anywhere — same room, different building, another city",
+            color: "amber",
           },
         ].map((item, i) => (
           <FadeInUp
@@ -1489,11 +1871,11 @@ function MentalModelSlide() {
           </FadeInUp>
         ))}
       </div>
-      <FadeInUp delay={0.7} className="mt-8">
+      <FadeInUp delay={0.8} className="mt-8">
         <div className="inline-block rounded-xl border border-white/20 bg-white/5 px-6 py-3">
           <span className="text-white/80">
-            Agents take notes, raise hands, and follow the rules—without a
-            central brain.
+            Agents take notes, raise hands, follow the rules, and join from
+            anywhere—without a central brain.
           </span>
         </div>
       </FadeInUp>
@@ -1536,7 +1918,7 @@ function PrototypeSlide() {
           ))}
         </div>
         <div className="text-center text-sm text-white/60">
-          All three patterns implemented and working
+          All four patterns implemented and working
         </div>
       </ScalePop>
     </div>
@@ -1546,7 +1928,7 @@ function PrototypeSlide() {
 function QuestionsSlide() {
   const box = `┌─────────────────────────────────────────┐
 │                                         │
-│   Three Patterns for Multi-Agent        │
+│   Four Patterns for Multi-Agent         │
 │   Coordination                          │
 │                                         │
 │   1. Selective Memory                   │
@@ -1557,6 +1939,9 @@ function QuestionsSlide() {
 │                                         │
 │   3. Deterministic Moderation           │
 │      Code-enforced conversation control │
+│                                         │
+│   4. Protocol-Based Coordination        │
+│      Works across deployment boundaries │
 │                                         │
 │   Architecture > Prompts                │
 │                                         │
@@ -1585,14 +1970,16 @@ function QuestionsSlide() {
 
 const slideMap: Record<string, React.ReactNode> = {
   title: <TitleSlide />,
-  "three-challenges": <ThreeChallengesSlide />,
+  "four-challenges": <FourChallengesSlide />,
   "challenge-1-problem": <Challenge1ProblemSlide />,
   "challenge-1-insight": <Challenge1InsightSlide />,
   "challenge-2-problem": <Challenge2ProblemSlide />,
   "challenge-2-insight": <Challenge2InsightSlide />,
   "challenge-3-problem": <Challenge3ProblemSlide />,
   "challenge-3-insight": <Challenge3InsightSlide />,
-  "three-patterns": <ThreePatternsSlide />,
+  "challenge-4-problem": <Challenge4ProblemSlide />,
+  "challenge-4-insight": <Challenge4InsightSlide />,
+  "four-patterns": <FourPatternsSlide />,
   "selective-memory": <SelectiveMemorySlide />,
   "selective-memory-how": <SelectiveMemoryHowSlide />,
   "selective-memory-impl": <SelectiveMemoryImplSlide />,
@@ -1602,6 +1989,9 @@ const slideMap: Record<string, React.ReactNode> = {
   "deterministic-moderation": <DeterministicModerationSlide />,
   "moderation-gateway": <ModerationGatewaySlide />,
   "deterministic-moderation-impl": <DeterministicModerationImplSlide />,
+  "protocol-coordination": <ProtocolCoordinationSlide />,
+  "protocol-coordination-how": <ProtocolCoordinationHowSlide />,
+  "protocol-coordination-impl": <ProtocolCoordinationImplSlide />,
   "patterns-together": <PatternTogetherSlide />,
   "why-matters": <WhyMattersSlide />,
   "mental-model": <MentalModelSlide />,
